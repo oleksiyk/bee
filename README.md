@@ -27,6 +27,9 @@ hive.bee('Images.Resize', {
 
 Internally bee works with [Q](https://github.com/kriskowal/q/) promises which makes it easy to construct complex job workflows and handle possible errors.
 
+### Status 
+Beta
+
 ### Features 
 * [Duplicates detection](#duplicates)
 * [Intelligent error processing](#errors)
