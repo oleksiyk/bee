@@ -23,7 +23,7 @@ hive.on('ready', function () {
 
     // setup bees
 
-    hive.bee('MagicTouch.create', {
+    hive.bee('Image.create', {
 
         hash: false,
 
@@ -33,12 +33,12 @@ hive.on('ready', function () {
 
             job.setTags(['customerId='+workload.customerId, 'tag1'])
 
-            return job.sub('MagicTouch.download', workload.largeUrl).post('result')
+            return job.sub('Image.download', workload.largeUrl).post('result')
                 .then(function (download) {
-                    return job.sub('MagicTouch.process', workload.smallWidth, workload.smallHeight, download.path).post('result')
+                    return job.sub('Image.process', workload.smallWidth, workload.smallHeight, download.path).post('result')
                 })
                 .then(function (process) {
-                    return job.sub('MagicTouch.upload', process.slices).post('result')
+                    return job.sub('Image.upload', process.slices).post('result')
                         .then(function (upload) {
                             return _.extend(workload, process, upload);
                         })
@@ -46,7 +46,7 @@ hive.on('ready', function () {
         }
     });
 
-    hive.bee('MagicTouch.download', {
+    hive.bee('Image.download', {
 
         hash: function (job, url) {
             console.log('Calculating HASH for job: ', job.jid);
@@ -64,7 +64,7 @@ hive.on('ready', function () {
         }
     });
 
-    hive.bee('MagicTouch.process', {
+    hive.bee('Image.process', {
         worker: function (job, width, height, path) {
 
             console.log('PROCESS: received job:', job.jid, 'width=', width, 'height=', height, 'path=', path);
@@ -72,9 +72,9 @@ hive.on('ready', function () {
             var processProgress = [];
 
             return Q.all(_.map([1, 2, 3, 4, 5], function (i) {
-                    return job.sub('MagicTouch.resize', path, width + i * 200, height + i * 200).post('result')
+                    return job.sub('Image.resize', path, width + i * 200, height + i * 200).post('result')
                         .then(function (resize) {
-                            return job.sub('MagicTouch.slice', resize.slicePath).post('result')
+                            return job.sub('Image.slice', resize.slicePath).post('result')
                         })
                         .progress(function (progress) {
                             processProgress[i - 1] = progress;
@@ -91,7 +91,7 @@ hive.on('ready', function () {
         }
     });
 
-    hive.bee('MagicTouch.resize', {
+    hive.bee('Image.resize', {
         worker: function (job, path, width, height) {
 
             var deferred = Q.defer();
@@ -122,7 +122,7 @@ hive.on('ready', function () {
         }
     });
 
-    hive.bee('MagicTouch.slice', {
+    hive.bee('Image.slice', {
         worker: function (job, path) {
 
             console.log('SLICE: received job:', job.jid, 'path=', path);
@@ -135,7 +135,7 @@ hive.on('ready', function () {
         wait: 50
     });
 
-    hive.bee('MagicTouch.upload', {
+    hive.bee('Image.upload', {
 
         hash: false,
 
