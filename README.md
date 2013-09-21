@@ -442,6 +442,8 @@ hive.bee('Image.Resize', {
 });
 ```
 
+`hash` function is promised, meaning that you can either return a sync value (like above) or a promise.
+
 Duplicate jobs have the same lifetime as their original job, including cases where original job is failed (it means if original job has failed before or after duplicate job has been submitted - duplicate job will also fail with the same Error as original job). Once original job expires (see ttl [job option](#optionslist)) all duplicates will expire too at the same moment, even if they have different ttl. Starting from moment when original job expires the very first job which is accepted by worker will be processed (and so will become new 'original').
 
 Cancelling original job will also cancel all duplicate jobs. On the other hand cancelling the duplicate job won't change original or other duplicates.
