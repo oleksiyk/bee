@@ -376,7 +376,7 @@ Written when job is sent.
 * `queued`
 Written when job enters working queue.
 * `delayed`
-Written when job is being delayed due to `delay` property (see [Job options](#optionslist)) or when job is wiring to be retried after exception failure. Contains additional `till` property which is a timestamp in ms.
+Written when job is being delayed due to `delay` property (see [Job options](#optionslist)) or when job is waiting to be retried after exception failure. Contains additional `till` property which is a timestamp in ms.
 * `exception`
 Written when worker throws an exception (or rejects the returned promise). Contains additional property `message` which is error description.
 * `failed`
