@@ -198,6 +198,7 @@ You can have a precise control over failed job retries process with job options 
 1. See the description for `job.options.retries`, `job.options.retryDelay`, `job.options.progressiveDelay` in the [Job options](#optionslist) section below.
 2. Exception properties:
 You can also control job retries with the properties of thrown exception (or promise rejection value):
+	
 	```javascript
 	hive.bee('Image.Resize', {
 		worker: function(job, imagePath, width, height){
@@ -211,12 +212,70 @@ You can also control job retries with the properties of thrown exception (or pro
 	})
 	```
 
+<a name="progress"></a>
+### Job progress notifications
+1. Sending job progress with `job.progress`:
+
+	```javascript
+	hive.bee('Image.Resize', {
+		worker: function(job, imagePath, width, height){
+			...
+			job.progress(0);
+			...
+			job.progress(10);
+			...
+			job.progress(100);
+		}
+	})
+	```
+2. Sending job progress using Q deferred:
+
+	```javascript
+	hive.bee('Image.Resize', {
+		worker: function(job, imagePath, width, height){
+			var deferred = Q.defer;
+			...
+			deferred.notify(0); deferred.notify(50); ...; deferred.resolve(...);
+			...
+			return deferred.promise;
+		}
+	})
+	```
+3. Modify progress value from child job(s) and send updated progress (progress bubbling)
+
+	```javascript
+	// should modify child progress by adding 1 (11, 21, 31...)
+        hive.bee('test.progress.3', {
+            worker: function (job, a) {
+
+                return hive.do('test.progress.2', a, Math.random()).post('result')
+                    .progress(function (progress) {
+                        return progress + 1;
+                    })
+                    .thenResolve(a + a);
+
+            }
+        })
+	```
+4. Receive progress notifications:
+
+	```javascript
+	hive.do('test.progress.2', a).post('result')
+        	.progress(function (progress) {
+        		console.log('job progress=', progress);
+        	})
+	
+	```
+
+
+
 <a name="options"></a>
 ### Job options
 There are job options you can set on client (with `hive.do()`) or in worker:
 
 1. Setting job options with `hive.do()`:
 Just pass an object instead of string as first argument to `hive.do()`:
+	
 	```javascript
 	hive.do({
 		name: 'Image.Resize',
@@ -226,6 +285,7 @@ Just pass an object instead of string as first argument to `hive.do()`:
 	}, imagePath, width, height)
 	```
 2. Setting job options in the worker:
+	
 	```javascript
 	hive.bee('Image.Resize', {
 		worker: function(job, imagePath, width, height){
@@ -258,6 +318,7 @@ Please note that the value you set for TTL is not a high precision exact amount 
 Stacking up jobs is easy:
 
 * Clients sends a task to resize remote image (by URL):
+	
 	```javascript
 	hive.do('Image.Resize.Remote', 'http://www.example.org/image.jpg', 300, 300)
 	.post('result')
@@ -266,6 +327,7 @@ Stacking up jobs is easy:
 	})
 	```
 * Worker splits the job:
+	
 	```javascript
 	// this one will resize local image
 	hive.bee('Image.Resize', {
