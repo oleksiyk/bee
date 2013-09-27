@@ -36,6 +36,7 @@ Beta
 * [Job progress notifications](#progress)
 * [Delayed jobs](#optionslist)
 * [Job workflows](#workflows)
+* [Job dependencies](#dependencies)
 * [Cancel jobs and workflows](#cancel)
 * [Job tagging/searching](#tags)
 * [Job history](#history)
@@ -254,7 +255,7 @@ Controls how long (in ms) your completed (or failed) job is considered as valid 
 Please note that the value you set for TTL is not a high precision exact amount in milliseconds that the job will stay valid. The job will be marked as expired the next time one of the workers comes to check for new jobs to Redis. And this can happen after up to 500ms. One other thing to consider is a requirement to set time synchronisation between all the servers running your workers. This is due to a inability to get current timestamp in Redis Lua scripts, so Redis works with timestamps passed with each request.
 
 <a name="workflows"></a>
-## Job workflows
+### Job workflows
 Stacking up jobs is easy:
 
 * Clients sends a task to resize remote image (by URL):
@@ -295,8 +296,22 @@ Stacking up jobs is easy:
 
 Instead of `hive.do()` worker functions can use `job.sub()` method which behaves exactly the same as `hive.do()` but sets newly created job as child for current job. This makes it possible to cancel whole job workflows (see [Job cancelling](#cancel))
 
+
+<a name="dependencies"></a>
+### Job dependencies
+When submitting job it is possible to provide a list of JIDs on which this new job will depend. The job wont be placed in a working (or delayed) queue untill all listed dependencies are resolved (successfuly or not)
+
+```javascript
+hive.do({
+	name: 'test.dependencies',
+	dependencies: [otherJob1.jid, otherJob2.jid] // wait for these two jobs before starting 
+}, 'workload').post('result').then...
+
+```
+
+
 <a name="history"></a>
-## Job history
+### Job history
 Bee saves all job state transitions into `job.history` array property. Each item in this array is an object with at least the following properties:
 
 ```javascript
