@@ -4,6 +4,7 @@ local NOW = tonumber(ARGV[2])
 -- include 'includes/hive.lua'
 -- include 'job/includes/addToHistory.lua'
 -- include 'job/includes/addToWorkingQueue.lua'
+-- include 'job/includes/dependencies.lua'
 -- include 'job/includes/incrementRetries.lua'
 -- include 'job/includes/setFailed.lua'
 -- include 'job/includes/setToDie.lua'
@@ -67,7 +68,7 @@ for index, jid in ipairs(redis.call('zrangebyscore', key_locks, 0, NOW, 'limit',
     -- check number of retries
     if incrementRetries('bee:h:jobs:' .. jid) then -- job failed all its retries
 
-        jobFailed('bee:h:jobs:' .. jid, key_expires, 'no more retries available')
+        setFailed('bee:h:jobs:' .. jid, key_expires, 'no more retries available')
 
     else -- retry it NOW
 

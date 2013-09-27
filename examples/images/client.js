@@ -25,7 +25,7 @@ hive.on('ready', function () {
     })
 
     hive.do({
-        name: 'MagicTouch.create',
+        name: 'Image.create',
         delay: 0
     }, {
         customerId: 1234,

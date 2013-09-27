@@ -33,5 +33,8 @@ local setFailed = function(key_jobs, key_expires, message)
         event = 'failed',
         queue = queue
     })
+
+    notifyDependants(jid)
+
 end
 

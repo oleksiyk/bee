@@ -2,6 +2,7 @@ local HIVE = ARGV[1]
 local NOW = tonumber(ARGV[2])
 
 -- include 'includes/hive.lua'
+-- include 'job/includes/dependencies.lua'
 -- include 'job/includes/addToHistory.lua'
 -- include 'job/includes/addToWorkingQueue.lua'
 -- include 'job/includes/setTags.lua'
@@ -20,6 +21,13 @@ local options = assert(cjson.decode(ARGV[7]), 'job/put: Arg "options" missing or
 local tags    = assert(cjson.decode(ARGV[8]), 'job/put: Arg "tags" missing or not JSON: ' .. tostring(ARGV[8]))
 
 local delay = assert(tonumber(options.delay) or 0)
+local dependencies = options.dependencies or {}
+
+if #dependencies then
+    for i, depJid in ipairs(dependencies) do
+        addDependantJob(depJid, jid)
+    end
+end
 
 
 if parent ~= 'null' then
@@ -53,19 +61,27 @@ end
 
 addToHistory(key_jobs, 'submitted')
 
-if delay > 0 then
+if hasDependencies(jid) == 0 then
 
-    -- add job to delayed queue
-    redis.call('zadd', key_delayed, NOW + delay, jid)
+    if delay > 0 then
 
-    addToHistory(key_jobs, 'delayed', {
-        till = NOW + delay
-    })
+        -- add job to delayed queue
+        redis.call('zadd', key_delayed, NOW + delay, jid)
+
+        addToHistory(key_jobs, 'delayed', {
+            till = NOW + delay
+        })
+
+    else
+
+        -- add job to working queue
+        addToWorkingQueue(jid, queue, key_queue, options.priority)
+
+    end
 
 else
 
-    -- add job to working queue
-    addToWorkingQueue(jid, queue, key_queue, options.priority)
+    addToHistory(key_jobs, 'dependancy_waiting')
 
 end
 
