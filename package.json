@@ -3,7 +3,7 @@
         "name": "Oleksiy Krivoshey",
         "email": "<oleksiyk@gmail.com>"
     },
-    "name": "bee-job-server",
+    "name": "bee",
     "description": "Redis-based job server for Node",
     "version": "0.0.2",
     "main": "./lib/index",
