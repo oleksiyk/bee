@@ -3,6 +3,8 @@ local NOW = tonumber(ARGV[2])
 
 -- include 'includes/hive.lua'
 -- include 'job/includes/addToHistory.lua'
+-- include 'job/includes/addToWorkingQueue.lua'
+-- include 'job/includes/dependencies.lua'
 -- include 'job/includes/getJob.lua'
 -- include 'job/includes/setToDie.lua'
 -- include 'job/includes/setExpired.lua'
@@ -58,6 +60,8 @@ cancelJob = function(jid)
             event = 'canceled',
             queue = queue
         })
+
+        notifyDependants(jid)
 
         return true
 
