@@ -207,7 +207,7 @@ describe('Job tags', function () {
 
         it('job should fail with "No more retries"', function () {
             this.timeout(3500)
-            return job.result().should.be.rejected.with(Error, 'No more retries')
+            return job.result().should.be.rejectedWith(Error, 'No more retries')
         })
 
         it('job is searchable by all the progressive tags', function () {

@@ -150,7 +150,7 @@ describe('Job options', function () {
                 this.timeout(3000);
 
                 return Q.delay(2500).then(function () {
-                    return hive.job(originalJob.jid).should.be.rejected.with(Error, 'Expired')
+                    return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Expired')
                 })
             })
 
@@ -167,7 +167,7 @@ describe('Job options', function () {
                 this.timeout(3000);
 
                 return Q.delay(2500).then(function () {
-                    return hive.job(originalJob.jid).should.be.rejected.with(Error, 'Not found')
+                    return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Not found')
                 })
             })
         })
@@ -193,7 +193,7 @@ describe('Job options', function () {
                 this.timeout(3000);
 
                 return Q.delay(2500).then(function () {
-                    return hive.job(originalJob.jid).should.be.rejected.with(Error, 'Expired')
+                    return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Expired')
                 })
             })
 
@@ -201,7 +201,7 @@ describe('Job options', function () {
                 this.timeout(3000);
 
                 return Q.delay(2500).then(function () {
-                    return hive.job(originalJob.jid).should.be.rejected.with(Error, 'Not found')
+                    return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Not found')
                 })
             })
         })
@@ -237,7 +237,7 @@ describe('Job options', function () {
 
             it('should be rejected with Error(Timed out)', function () {
                 return job.result()
-                    .should.be.rejected.with(Error, 'Timed out');
+                    .should.be.rejectedWith(Error, 'Timed out');
             })
 
         })
@@ -270,7 +270,7 @@ describe('Job options', function () {
 
             it('should be rejected with Error(Timed out)', function () {
                 return job.result()
-                    .should.be.rejected.with(Error, 'Timed out');
+                    .should.be.rejectedWith(Error, 'Timed out');
             })
 
         })
@@ -301,7 +301,7 @@ describe('Job options', function () {
 
         it('should be rejected with Error(No more retries)', function () {
             return job.result()
-                .should.be.rejected.with(Error, 'No more retries');
+                .should.be.rejectedWith(Error, 'No more retries');
         })
 
         it('job.retries should match specified in job options', function () {
@@ -339,7 +339,7 @@ describe('Job options', function () {
 
         it('should be rejected with Error(No more retries)', function () {
             return job.result()
-                .should.be.rejected.with(Error, 'No more retries');
+                .should.be.rejectedWith(Error, 'No more retries');
         })
 
         it('job.retries should match specified in job options', function () {

@@ -167,7 +167,7 @@ describe('Objects, methods and properties', function () {
                 })
 
                 it('and should reject for invalid JID', function () {
-                    return hive.job('invalid jid here').should.be.rejected.with(Error, 'Not found')
+                    return hive.job('invalid jid here').should.be.rejectedWith(Error, 'Not found')
                 })
             })
 

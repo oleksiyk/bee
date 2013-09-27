@@ -102,7 +102,7 @@ describe('Job history', function () {
 
         it('job should fail with "No more retries"', function () {
             this.timeout(3500)
-            return job.result().should.be.rejected.with(Error, 'No more retries')
+            return job.result().should.be.rejectedWith(Error, 'No more retries')
         })
 
         it('history contains submitted, queued, popped, exception, delayed and failed events', function () {
