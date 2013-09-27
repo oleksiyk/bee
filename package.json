@@ -3,23 +3,25 @@
         "name": "Oleksiy Krivoshey",
         "email": "<oleksiyk@gmail.com>"
     },
-    "name": "bee",
-    "description": "Redis-based job server",
+    "name": "bee-job-server",
+    "description": "Redis-based job server for Node",
     "version": "0.0.2",
     "main": "./lib/index",
     "engines": {
         "node": ">=0.8.16"
     },
     "dependencies": {
-        "lodash": ">=1.3.1",
-        "hiredis": ">=0.1.15",
-        "redis": ">=0.8.2",
-        "node-uuid": ">=1.4.0",
-        "q": ">=0.9.6",
-        "chai": ">=1.7.2",
-        "sinon-chai": ">=2.4.0",
-        "chai-as-promised": ">=3.3.1",
-        "mocha-as-promised": ">=1.4.0"
+        "lodash": "~=2.1.0",
+        "hiredis": "~=0.1.15",
+        "redis": "~=0.8.5",
+        "node-uuid": "~=1.4.1",
+        "q": "~=0.9.7"
+    },
+    "devDependencies":{
+        "chai": "~=1.8.0",
+        "sinon-chai": "~=2.4.0",
+        "chai-as-promised": "~=4.0.0",
+        "mocha-as-promised": "~=1.4.0"
     },
     "bugs": {
         "url": "https://github.com/oleksiyk/bee/issues"

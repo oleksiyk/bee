@@ -159,12 +159,12 @@ describe('Failed jobs', function () {
         it('should be rejected with Error(Argument must be positive) immediately', function () {
             return hive.do('test.failed.sqrt', -100, Math.random()).then(function (job) {
                 jid = job.jid;
-                return job.result().should.be.rejected.with(Error, 'Argument must be positive');
+                return job.result().should.be.rejectedWith(Error, 'Argument must be positive');
             })
         })
 
         it('should give the same failed reason when job is retrieved with hive.job()', function () {
-            return hive.job(jid).post('result').should.be.rejected.with(Error, 'Argument must be positive');
+            return hive.job(jid).post('result').should.be.rejectedWith(Error, 'Argument must be positive');
         })
 
         it('should work with proper argument (Math.sqrt(16) == 4)', function () {
@@ -183,12 +183,12 @@ describe('Failed jobs', function () {
             this.timeout(3000)
             return hive.do('test.failed.rejectedPromise', -100, Math.random()).then(function (job) {
                 jid = job.jid;
-                return job.result().should.be.rejected.with(Error, 'Rejected promise');
+                return job.result().should.be.rejectedWith(Error, 'Rejected promise');
             })
         })
 
         it('should give the same failed reason when job is retrieved with hive.job()', function () {
-            return hive.job(jid).post('result').should.be.rejected.with(Error, 'Rejected promise');
+            return hive.job(jid).post('result').should.be.rejectedWith(Error, 'Rejected promise');
         })
 
     })
@@ -256,7 +256,7 @@ describe('Failed jobs', function () {
 
         it('should be rejected with Error(No more retries)', function () {
             return job.result()
-                .should.be.rejected.with(Error, 'No more retries');
+                .should.be.rejectedWith(Error, 'No more retries');
         })
 
         it('worker should not be called', function () {
@@ -311,7 +311,7 @@ describe('Failed jobs', function () {
 
         it('should be rejected with Error(No more retries)', function () {
             return job.result()
-                .should.be.rejected.with(Error, 'No more retries');
+                .should.be.rejectedWith(Error, 'No more retries');
         })
 
     })
@@ -340,7 +340,7 @@ describe('Failed jobs', function () {
 
         it('should be rejected with Error(Timed out)', function () {
             return job.result()
-                .should.be.rejected.with(Error, 'Timed out');
+                .should.be.rejectedWith(Error, 'Timed out');
         })
 
     })
@@ -369,7 +369,7 @@ describe('Failed jobs', function () {
 
         it('should be rejected with Error(Timed out)', function () {
             return job.result()
-                .should.be.rejected.with(Error, 'Timed out');
+                .should.be.rejectedWith(Error, 'Timed out');
         })
 
     })
@@ -391,11 +391,11 @@ describe('Failed jobs', function () {
         })
 
         it('original job should fail with error "Argument must be positive"', function () {
-            return job1.result().should.be.rejected.with(Error, 'Argument must be positive')
+            return job1.result().should.be.rejectedWith(Error, 'Argument must be positive')
         })
 
         it('duplicate job should fail with the same error "Argument must be positive"', function () {
-            return job2.result().should.be.rejected.with(Error, 'Argument must be positive')
+            return job2.result().should.be.rejectedWith(Error, 'Argument must be positive')
         })
 
         it('second job should be marked as duplicate', function () {
@@ -404,7 +404,7 @@ describe('Failed jobs', function () {
 
         it('job loaded with hive.job(jid) should be the same', function () {
             return hive.job(job2.jid).then(function (_job) {
-                return _job.result().should.be.rejected.with(Error, 'Argument must be positive')
+                return _job.result().should.be.rejectedWith(Error, 'Argument must be positive')
             })
         })
 
@@ -434,11 +434,11 @@ describe('Failed jobs', function () {
 
         it('original job should fail with error "Argument must be positive" in 3 seconds', function () {
             this.timeout(4000)
-            return job1.result().should.be.rejected.with(Error, 'Argument must be positive')
+            return job1.result().should.be.rejectedWith(Error, 'Argument must be positive')
         })
 
         it('duplicate job should fail with the same error "Argument must be positive"', function () {
-            return job2.result().should.be.rejected.with(Error, 'Argument must be positive')
+            return job2.result().should.be.rejectedWith(Error, 'Argument must be positive')
         })
 
         it('second job should be marked as duplicate', function () {
@@ -460,7 +460,7 @@ describe('Failed jobs', function () {
             })
 
             it('should fail with Error(Hash can only be a number or string and not undefined)', function () {
-                return job.result().should.be.rejected.with(Error, 'Hash can only be a number or string and not undefined')
+                return job.result().should.be.rejectedWith(Error, 'Hash can only be a number or string and not undefined')
             })
         })
 
@@ -473,7 +473,7 @@ describe('Failed jobs', function () {
             })
 
             it('should fail with Error(Hash string is too short)', function () {
-                return job.result().should.be.rejected.with(Error, 'Hash string is too short')
+                return job.result().should.be.rejectedWith(Error, 'Hash string is too short')
             })
         })
 
@@ -486,7 +486,7 @@ describe('Failed jobs', function () {
             })
 
             it('should fail with Error(Hash can only be a number or string and not object)', function () {
-                return job.result().should.be.rejected.with(Error, 'Hash can only be a number or string and not object')
+                return job.result().should.be.rejectedWith(Error, 'Hash can only be a number or string and not object')
             })
         })
 
@@ -499,7 +499,7 @@ describe('Failed jobs', function () {
             })
 
             it('should fail with Error(Exception as string)', function () {
-                return job.result().should.be.rejected.with(Error, 'Exception as string')
+                return job.result().should.be.rejectedWith(Error, 'Exception as string')
             })
         })
     })

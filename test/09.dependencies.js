@@ -365,7 +365,7 @@ describe('Job dependencies', function () {
 
                     return job.result().then(function () {
                         return Q.all([
-                            _job.result().should.be.rejected.with(Error, 'Canceled'),
+                            _job.result().should.be.rejectedWith(Error, 'Canceled'),
 
                             _.flatten(_job.history, 'event').should.be.an('array')
                                 .and.include('dependancy_waiting')

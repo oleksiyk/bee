@@ -101,11 +101,11 @@ describe('Job cancel', function () {
         })
 
         it('job.result() is rejected with "Canceled"', function () {
-            return job.result().should.be.rejected.with(Error, 'Canceled');
+            return job.result().should.be.rejectedWith(Error, 'Canceled');
         })
 
         it('hive.job() is rejected with "Canceled"', function () {
-            return hive.job(job.jid).should.be.rejected.with(Error, 'Canceled');
+            return hive.job(job.jid).should.be.rejectedWith(Error, 'Canceled');
         })
 
         it('job hash should have an expire TTL set in Redis', function () {
@@ -139,11 +139,11 @@ describe('Job cancel', function () {
         })
 
         it('job.result() is rejected with "Canceled"', function () {
-            return job.result().should.be.rejected.with(Error, 'Canceled');
+            return job.result().should.be.rejectedWith(Error, 'Canceled');
         })
 
         it('hive.job() is rejected with "Canceled"', function () {
-            return hive.job(job.jid).should.be.rejected.with(Error, 'Canceled');
+            return hive.job(job.jid).should.be.rejectedWith(Error, 'Canceled');
         })
 
         it('job hash should have an expire TTL set in Redis', function () {
@@ -173,15 +173,15 @@ describe('Job cancel', function () {
 
         it('worker should return rejected promise', function () {
             this.timeout(3000)
-            return spyRunningFailed.getCall(0).returnValue.should.be.rejected.with(Error, 'Failed!!')
+            return spyRunningFailed.getCall(0).returnValue.should.be.rejectedWith(Error, 'Failed!!')
         })
 
         it('job.result() is rejected with "Canceled"', function () {
-            return job.result().should.be.rejected.with(Error, 'Canceled');
+            return job.result().should.be.rejectedWith(Error, 'Canceled');
         })
 
         it('hive.job() is rejected with "Canceled"', function () {
-            return hive.job(job.jid).should.be.rejected.with(Error, 'Canceled');
+            return hive.job(job.jid).should.be.rejectedWith(Error, 'Canceled');
         })
 
         it('job hash should have an expire TTL set in Redis', function () {
@@ -236,11 +236,11 @@ describe('Job cancel', function () {
         })
 
         it('hive.job(job.jid) is rejected with "Canceled"', function () {
-            return hive.job(job.jid).should.be.rejected.with(Error, 'Canceled');
+            return hive.job(job.jid).should.be.rejectedWith(Error, 'Canceled');
         })
 
         it('hive.job(job2.jid) is rejected with "Canceled"', function () {
-            return hive.job(job2.jid).should.be.rejected.with(Error, 'Canceled');
+            return hive.job(job2.jid).should.be.rejectedWith(Error, 'Canceled');
         })
 
         it('hive.job(job3.jid) is resolved', function () {
@@ -283,9 +283,9 @@ describe('Job cancel', function () {
 
         it('all jobs are finished and failed with "Failed123!"', function () {
             return Q.all([
-                job.result().should.be.rejected.with(Error, 'Failed123!'),
-                job2.result().should.be.rejected.with(Error, 'Failed123!'),
-                job3.result().should.be.rejected.with(Error, 'Failed123!')
+                job.result().should.be.rejectedWith(Error, 'Failed123!'),
+                job2.result().should.be.rejectedWith(Error, 'Failed123!'),
+                job3.result().should.be.rejectedWith(Error, 'Failed123!')
             ])
         })
 
@@ -298,11 +298,11 @@ describe('Job cancel', function () {
         })
 
         it('hive.job(job.jid) is rejected with "Canceled"', function () {
-            return hive.job(job.jid).should.be.rejected.with(Error, 'Canceled');
+            return hive.job(job.jid).should.be.rejectedWith(Error, 'Canceled');
         })
 
         it('hive.job(job2.jid) is rejected with "Canceled"', function () {
-            return hive.job(job2.jid).should.be.rejected.with(Error, 'Canceled');
+            return hive.job(job2.jid).should.be.rejectedWith(Error, 'Canceled');
         })
 
         it('hive.job(job3.jid) is resolved', function () {
@@ -310,7 +310,7 @@ describe('Job cancel', function () {
         })
 
         it('hive.job(job3.jid).result() is rejected with "Failed123!"', function () {
-            return hive.job(job3.jid).post('result').should.be.rejected.with(Error, "Failed123!");
+            return hive.job(job3.jid).post('result').should.be.rejectedWith(Error, "Failed123!");
         })
     })
 
@@ -328,11 +328,11 @@ describe('Job cancel', function () {
         })
 
         it('job.result() should be rejected with "Canceled"', function () {
-            return job.result().should.be.rejected.with(Error, 'Canceled')
+            return job.result().should.be.rejectedWith(Error, 'Canceled')
         })
 
         it('child job is canceled', function () {
-            return hive.job(spyWorkflowChild.getCall(0).args[0].jid).should.be.rejected.with(Error, 'Canceled')
+            return hive.job(spyWorkflowChild.getCall(0).args[0].jid).should.be.rejectedWith(Error, 'Canceled')
         })
     })
 
@@ -358,7 +358,7 @@ describe('Job cancel', function () {
         })
 
         it('job.result() should be rejected with "Canceled"', function () {
-            return job.result().should.be.rejected.with(Error, 'Canceled')
+            return job.result().should.be.rejectedWith(Error, 'Canceled')
         })
 
         it('job2.result() should be resolved after 1 retry, ~5sec', function () {
