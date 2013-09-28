@@ -142,6 +142,36 @@ describe('Objects, methods and properties', function () {
             })
         })
 
+        describe('#queueSize()', function () {
+            it('is a function', function () {
+                hive.should.respondTo('queueSize')
+            })
+
+            describe('returns a ...', function () {
+                var job, promise, queue = queueName + Math.random();
+
+                before(function () {
+                    return Q.all([
+                        hive.do({
+                            name: queue,
+                            delay: 500
+                        }, 1),
+                        hive.do(queue, 2)
+                    ])
+                })
+
+                it('a promise', function () {
+                    promise = hive.queueSize(queue);
+                    return Q.isPromise(promise).should.be.ok;
+                })
+
+                it('correct value', function () {
+                    return promise.should.eventually.be.equal(2)
+                })
+            })
+
+        })
+
         describe('#job()', function () {
             it('is a function', function () {
                 hive.should.respondTo('job')
