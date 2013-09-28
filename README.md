@@ -263,7 +263,7 @@ You can also control job retries with the properties of thrown exception (or pro
 	```javascript
 	hive.do('test.progress.2', a).post('result')
         	.progress(function (progress) {
-        		console.log('job progress=', progress);
+        		process.stdout.write('\rProcessing progress=' + Number(progress).toFixed(2) + '%')
         	})
 	
 	```
