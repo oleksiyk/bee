@@ -1,5 +1,5 @@
 
-local setFailed = function(key_jobs, key_expires, message)
+setFailed = function(key_jobs, key_expires, message)
 
     -- get job options
     local jid, queue, options = unpack(redis.call('hmget', key_jobs, 'jid', 'queue', 'options'))

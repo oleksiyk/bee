@@ -3,7 +3,7 @@
 -- @param key_jobs Job hash key
 -- @param jid JID
 -- @param ttl TTL
-local setToDie = function(key_jobs, jid, ttl)
+setToDie = function(key_jobs, jid, ttl)
 
     local tags, parent = unpack(redis.call('hmget', key_jobs, 'tags', 'parent'))
 

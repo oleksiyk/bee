@@ -1,5 +1,5 @@
 
-local setExpired = function(jid, status)
+setExpired = function(jid, status)
 
     local options, hash, queue = unpack(redis.call('hmget', 'bee:h:jobs:' .. jid, 'options', 'hash', 'queue'))
     options = cjson.decode(options)
