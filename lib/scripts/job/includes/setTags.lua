@@ -1,5 +1,5 @@
 
-local setTags = function(jid, tags)
+setTags = function(jid, tags)
 
     -- store the tags list in job hash
     redis.call('hset', 'bee:h:jobs:' .. jid,

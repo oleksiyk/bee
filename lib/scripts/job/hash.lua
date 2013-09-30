@@ -2,8 +2,7 @@ local HIVE = ARGV[1]
 local NOW = tonumber(ARGV[2])
 
 -- include 'includes/hive.lua'
--- include 'job/includes/addToHistory.lua'
--- include 'job/includes/getJob.lua'
+-- include 'job/includes/index.lua'
 
 local key_jobs      = assert(KEYS[1])
 local key_locks     = assert(KEYS[2])

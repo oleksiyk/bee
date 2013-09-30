@@ -1,7 +1,7 @@
 --- Check and update retries count for given job
 -- @param key_jobs Job hash key
 -- @returns boolean Whether Job has completely failed
-local incrementRetries = function(key_jobs)
+incrementRetries = function(key_jobs)
 
     -- get job options
     local options, retries = unpack(redis.call('hmget', key_jobs, 'options', 'retries'))
