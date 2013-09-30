@@ -1,7 +1,7 @@
 --- add dependant job
 -- @param {string} jid Job (parent) JID
 -- @param {string} dependant_jid Dependant job JID
-local addDependantJob = function(jid, dependant_jid)
+addDependantJob = function(jid, dependant_jid)
 
     local key_jobs = 'bee:h:jobs:' .. jid
 
@@ -29,13 +29,13 @@ local addDependantJob = function(jid, dependant_jid)
 end
 
 -- return amount of dependencies for this JID
-local hasDependencies = function(jid)
+hasDependencies = function(jid)
     return redis.call('scard', 'bee:s:dependencies:' .. jid)
 end
 
 
 -- notify all dependant job that this JID is done (or failed, canceled)
-local notifyDependants = function(jid)
+notifyDependants = function(jid)
 
     local key_jobs = 'bee:h:jobs:' .. jid
 

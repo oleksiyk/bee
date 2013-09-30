@@ -2,7 +2,7 @@
 -- @param {string} key_jobs Job hash key
 -- @param {string} event event (operation) name
 -- @param {table} [data] event data
-local addToHistory = function(key_jobs, event, data)
+addToHistory = function(key_jobs, event, data)
 
     local history = cjson.decode(redis.call('hget', key_jobs, 'history') or '{}')
 
