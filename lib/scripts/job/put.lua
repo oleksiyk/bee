@@ -78,7 +78,7 @@ if hasDependencies(jid) == 0 then
 
 else
 
-    addToHistory(key_jobs, 'dependancy_waiting')
+    addToHistory(key_jobs, 'dependancyWaiting')
 
 end
 

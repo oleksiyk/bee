@@ -95,9 +95,9 @@ describe('Job dependencies', function () {
                 })
         })
 
-        it('job history should contain dependency_waiting', function () {
+        it('job history should contain dependencyWaiting', function () {
             _.flatten(depJob.history, 'event').should.be.an('array')
-                .and.include('dependancy_waiting')
+                .and.include('dependancyWaiting')
         })
 
         it('should execute immediately because dependency already resolved', function () {
@@ -368,7 +368,7 @@ describe('Job dependencies', function () {
                             _job.result().should.be.rejectedWith(Error, 'Canceled'),
 
                             _.flatten(_job.history, 'event').should.be.an('array')
-                                .and.include('dependancy_waiting')
+                                .and.include('dependancyWaiting')
                                 .and.include('canceled')
                         ])
 
@@ -417,9 +417,9 @@ describe('Job dependencies', function () {
             })
         })
 
-        it('job history should not contain dependency_waiting', function () {
+        it('job history should not contain dependencyWaiting', function () {
             _.flatten(depJob.history, 'event').should.be.an('array')
-                .and.not.include('dependancy_waiting')
+                .and.not.include('dependancyWaiting')
         })
 
 
