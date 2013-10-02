@@ -11,7 +11,7 @@ local hivelog = function(message)
     end
 
     -- redis.call('publish', 'bee:ch:log', cjson.encode(message))
-    redis.log(redis.LOG_NOTICE, '!', cjson.encode(message))
+    redis.log(redis.LOG_NOTICE, cjson.encode(message))
 
 end
 
