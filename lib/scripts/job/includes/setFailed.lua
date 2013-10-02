@@ -1,8 +1,17 @@
 
-setFailed = function(key_jobs, key_expires, message)
+setFailed = function(jid, message)
+
+    local key_jobs = 'bee:h:jobs:' .. jid
+
+    hivelog({
+        event = 'setFailed',
+        jid   = jid,
+        message = message
+    })
 
     -- get job options
-    local jid, queue, options = unpack(redis.call('hmget', key_jobs, 'jid', 'queue', 'options'))
+    local queue, options = unpack(redis.call('hmget', key_jobs, 'queue', 'options'))
+    local key_expires = 'bee:ss:expires:' .. queue
 
     options = cjson.decode(options)
 
@@ -13,7 +22,7 @@ setFailed = function(key_jobs, key_expires, message)
         'failed_reason', message,
         'status', 'failed')
 
-    addToHistory(key_jobs, 'failed', {
+    addToHistory(jid, 'failed', {
         message = message
     })
 
@@ -24,7 +33,7 @@ setFailed = function(key_jobs, key_expires, message)
     redis.call('publish', 'bee:ch:q:' .. queue, cjson.encode({
         jid = jid,
         type = 'failed',
-        job = getJob(key_jobs)
+        job = getJob(jid)
     }))
 
     -- Send out a log message

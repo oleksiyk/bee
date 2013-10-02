@@ -1,7 +1,14 @@
 --- Check and update retries count for given job
--- @param key_jobs Job hash key
+-- @param jid Job JID
 -- @returns boolean Whether Job has completely failed
-incrementRetries = function(key_jobs)
+incrementRetries = function(jid)
+
+    hivelog({
+        message = 'incrementRetries',
+        jid   = jid
+    })
+
+    local key_jobs = 'bee:h:jobs:' .. jid
 
     -- get job options
     local options, retries = unpack(redis.call('hmget', key_jobs, 'options', 'retries'))

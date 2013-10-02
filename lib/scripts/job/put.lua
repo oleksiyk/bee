@@ -1,86 +1,91 @@
 local HIVE = ARGV[1]
 local NOW = tonumber(ARGV[2])
 
+local job = assert(cjson.decode(ARGV[3]), 'Script arguments are missing or not JSON: ' .. tostring(ARGV[3]))
+
 -- include 'includes/hive.lua'
 -- include 'job/includes/index.lua'
 
-local key_queue = assert(KEYS[1])
-local key_jobs  = assert(KEYS[2])
-local key_delayed  = assert(KEYS[3])
-local key_parent = KEYS[4]
-local key_parent_children = KEYS[5]
+hivelog({
+    event = 'New Job (put)',
+    jid   = job.jid,
+    queue = job.queue
+})
 
-local queue   = assert(ARGV[3], 'job/put: Arg "queue" missing')
-local jid     = assert(ARGV[4], 'job/put: Arg "jid" missing')
-local parent  = ARGV[5]
-local data    = assert(ARGV[6], 'job/put: Arg "data" missing')
-local options = assert(cjson.decode(ARGV[7]), 'job/put: Arg "options" missing or not JSON: ' .. tostring(ARGV[7]))
-local tags    = assert(cjson.decode(ARGV[8]), 'job/put: Arg "tags" missing or not JSON: ' .. tostring(ARGV[8]))
+if 0 ~= redis.call('exists', 'bee:h:jobs:' .. job.jid) then
+    error('Job ' .. job.jid .. ' already exists')
+end
 
-local delay = assert(tonumber(options.delay) or 0)
-local dependencies = options.dependencies or {}
-
-if #dependencies then
-    for i, depJid in ipairs(dependencies) do
-        addDependantJob(depJid, jid)
+if #job.options.dependencies then
+    for i, depJid in ipairs(job.options.dependencies) do
+        addDependantJob(depJid, job.jid)
     end
 end
 
 
-if parent ~= 'null' then
-    -- redis.log(redis.LOG_NOTICE, 'adding to parents list of children', parent, jid, key_parent_children)
+if job.parent then
 
-    if 'canceled' == redis.call('hget', key_parent, 'status') then -- parent job is canceled, don't allow new child jobs
+    hivelog({
+        event = 'Adding Job to its parent',
+        parent = job.parent,
+        jid   = job.jid,
+        queue = job.queue
+    })
+
+    local key_parent = 'bee:h:jobs:' .. job.parent
+    local key_parent_children = 'bee:s:' .. job.parent .. ':children'
+
+    if 'canceled' == redis.call('hget', 'bee:h:jobs:' .. job.parent, 'status') then -- parent job is canceled, don't allow new child jobs
         return false
     end
 
-    redis.call('hset', key_jobs, 'parent', parent)
-    redis.call('sadd', key_parent_children, jid)
+    redis.call('hset', 'bee:h:jobs:' .. job.jid, 'parent', job.parent)
+    redis.call('sadd', 'bee:s:' .. job.parent .. ':children', job.jid)
 
 end
 
 -- Save job data
-redis.call('hmset', key_jobs,
-    'jid', jid,
-    'data', data,
-    'options', cjson.encode(options),
+redis.call('hmset', 'bee:h:jobs:' .. job.jid,
+    'jid', job.jid,
+    'data', cjson.encode(job.data),
+    'options', cjson.encode(job.options),
     'worker', '',
-    'queue', queue,
+    'queue', job.queue,
     'status', 'new',
     'submitted', NOW,
     'retries', 0)
 
 -- set job tags if any
-if #tags then
-    setTags(jid, tags)
+if #job.tags then
+    setTags(job.jid, job.tags)
 end
 
 
-addToHistory(key_jobs, 'submitted')
+addToHistory(job.jid, 'submitted')
 
-if hasDependencies(jid) == 0 then
+if hasDependencies(job.jid) == 0 then
 
-    if delay > 0 then
+    if job.options.delay > 0 then
 
         -- add job to delayed queue
-        redis.call('zadd', key_delayed, NOW + delay, jid)
+        redis.call('zadd', 'bee:ss:delayed:' .. job.queue, NOW + job.options.delay, job.jid)
 
-        addToHistory(key_jobs, 'delayed', {
-            till = NOW + delay
+        addToHistory(job.jid, 'delayed', {
+            till = NOW + job.options.delay
         })
 
     else
 
         -- add job to working queue
-        addToWorkingQueue(jid, queue, key_queue, options.priority)
+        addToWorkingQueue(job.jid)
 
     end
 
 else
 
-    addToHistory(key_jobs, 'dependancyWaiting')
+    addToHistory(job.jid, 'dependancyWaiting')
 
 end
 
-return jid
+return job.jid
 

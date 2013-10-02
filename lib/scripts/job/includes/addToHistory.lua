@@ -1,8 +1,10 @@
 --- add item to job's history
--- @param {string} key_jobs Job hash key
+-- @param {string} jid Job JID
 -- @param {string} event event (operation) name
 -- @param {table} [data] event data
-addToHistory = function(key_jobs, event, data)
+addToHistory = function(jid, event, data)
+
+    local key_jobs = 'bee:h:jobs:' .. jid
 
     local history = cjson.decode(redis.call('hget', key_jobs, 'history') or '{}')
 

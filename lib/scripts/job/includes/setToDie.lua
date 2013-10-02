@@ -1,15 +1,24 @@
 --- Set expiration time on job
--- and remove it from tag sets
--- @param key_jobs Job hash key
 -- @param jid JID
 -- @param ttl TTL
-setToDie = function(key_jobs, jid, ttl)
+setToDie = function(jid, ttl)
 
-    local tags, parent = unpack(redis.call('hmget', key_jobs, 'tags', 'parent'))
+    hivelog({
+        event = 'setToDie',
+        jid   = jid,
+        ttl = ttl
+    })
+
+    local key_jobs = 'bee:h:jobs:' .. jid
+
+    local tags, parent, queue = unpack(redis.call('hmget', key_jobs, 'tags', 'parent', 'queue'))
 
     tags = cjson.decode(tags or '{}')
 
     redis.call('pexpire', key_jobs, ttl)
+
+    -- remove it from expires queue
+    redis.call('zrem', 'bee:ss:expires:' .. queue, jid)
 
     -- remove the job from tag sets
     if #tags then
