@@ -169,7 +169,7 @@ Set `hash` to `null` to use default hash function, set it to `false` to disable 
 	concurrency: false // false or number
 	```
 Setting concurrency to `false` (default value) will disable the limit, however the Bee will still internally balance it between all workers for this queue (those with the same `name`)
-* `timeout` is a maximum time in ms the worker can do the job. This is needed to avoid memory leaks because of unintentionally unfulfilled deferred promises. The default is 30,000 (30 seconds).
+* `timeout` is a maximum time in ms the worker can do the job. This is needed to avoid memory leaks because of unintentionally unfulfilled deferred promises. The default is 1,800,000 (30 minutes). Update this value if your job can take longer time.
 
 Example of customised bee:
 
@@ -282,7 +282,7 @@ Just pass an object instead of string as first argument to `hive.do()`:
 		name: 'Image.Resize',
 		ttl: 30000, // job TTL will be 30 seconds
 		delay: 3000, // delay job execution for 3 seconds
-		timeout: 30000 // maximum time to wait for job resolution/rejection
+		timeout: 30000 // maximum time in ms to wait for job resolution/rejection
 	}, imagePath, width, height)
 	```
 2. Setting job options in the worker:
@@ -301,8 +301,8 @@ List of job options:
 
 * `job.options.delay=0`
 Delays job execution for the specified amount of milliseconds. 
-* `job.options.timeout=180000`
-Maximum time a client will wait for job result promise to be resolved or rejected. After that the promise will be rejected with 'Timed out' error. The default value is 180000 (3 mins).
+* `job.options.timeout=1800000`
+Maximum time a client will wait for job result promise to be resolved or rejected. After that the promise will be rejected with 'Timed out' error. The default value is 1800000 (30 mins).
 * `job.options.retries=5`
 Can be set on worker only. Specifies amount of retries for the failed job. If retries=0 the job will be rejected on first error. The job will fail with 'No more retries available' error if all retries have been exhausted.
 * `job.options.retryDelay=30000`
