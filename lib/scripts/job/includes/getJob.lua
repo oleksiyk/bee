@@ -1,7 +1,7 @@
-getJob = function(key_jobs)
+getJob = function(jid)
     local duplicate_job = false
 
-    local jid, parent, data, queue, worker, hash, status, options, submitted, retries, tags, result, duplicate, failed_reason, history, dependants = unpack(redis.call('hmget', key_jobs,
+    local jid, parent, data, queue, worker, hash, status, options, submitted, retries, tags, result, duplicate, failed_reason, history, dependants = unpack(redis.call('hmget', 'bee:h:jobs:' .. jid,
         'jid', 'parent', 'data', 'queue', 'worker', 'hash', 'status', 'options', 'submitted', 'retries', 'tags', 'result', 'duplicate', 'failed_reason', 'history', 'dependants'))
 
     if not jid then

@@ -1,84 +1,84 @@
 local HIVE = ARGV[1]
 local NOW = tonumber(ARGV[2])
 
+local args = assert(cjson.decode(ARGV[3]), 'Script arguments are missing or not JSON: ' .. tostring(ARGV[3]))
+
 -- include 'includes/hive.lua'
 -- include 'job/includes/index.lua'
 
-local key_jobs      = assert(KEYS[1])
-local key_locks     = assert(KEYS[2])
-local key_expires   = assert(KEYS[3])
-local key_bee_locks = assert(KEYS[4])
-local key_delayed   = assert(KEYS[5])
+local key_jobs      = 'bee:h:jobs:' .. args.jid
 
-local jid    = assert(ARGV[3], 'job/failed: Arg "jid" missing')
-local error  = assert(cjson.decode(ARGV[4]), 'job/failed: Arg "error" missing or not JSON: ' .. tostring(ARGV[4]))
-local worker = assert(ARGV[5], 'job/failed: Arg "worker" missing')
-local options = assert(cjson.decode(ARGV[6]), 'job/failed: Arg "options" missing or not JSON: ' .. tostring(ARGV[6]))
+hivelog({
+    event = 'Failed',
+    jid   = args.jid,
+    queue = args.queue,
+    exception = args.exception
+})
 
 if 0 == redis.call('exists', key_jobs) then
-    error('Job ' .. jid .. ' doesn\'t exist. worker: ' .. worker)
+    error('Job ' .. args.jid .. ' doesn\'t exist. worker: ' .. args.worker)
 end
 
 local status, cur_worker = unpack(redis.call('hmget', key_jobs, 'status', 'worker'))
 
 if status == 'canceled' then -- ignore the failure as job was canceled
-    return jid
+    return args.jid
 end
 
-if worker ~= cur_worker then
-    error('Not your job. Worker: ' .. worker .. ', jid: ' ..jid)
+if args.worker ~= cur_worker then
+    error('Not your job. Worker: ' .. args.worker .. ', jid: ' .. args.jid)
 end
 
 -- Remove the lock
-redis.call('zrem', key_locks, jid)
+redis.call('zrem', 'bee:ss:locks:' .. args.queue, args.jid)
 
 -- Remove job from set of jobs running on this worker
-redis.call('srem', key_bee_locks, jid)
+redis.call('srem', 'bee:s:locks:' .. args.worker, args.jid)
 
 -- update job options
-redis.call('hset', key_jobs, 'options', cjson.encode(options))
+redis.call('hset', key_jobs, 'options', cjson.encode(args.options))
 
-addToHistory(key_jobs, 'exception', {
-    message = error.message
+addToHistory(args.jid, 'exception', {
+    message = args.exception.message
 })
 
-if not error['retry'] then
+if not args.exception.retry then
 
-    setFailed(key_jobs, key_expires, error.message)
+    setFailed(args.jid, args.exception.message)
 
-    return jid
+    return args.jid
 
 end
 
 -- check number of retries
-if incrementRetries(key_jobs) then -- job has failed all its retries
+if incrementRetries(args.jid) then -- job has failed all its retries
 
-    local options = cjson.decode(redis.call('hget', key_jobs, 'options'))
+    -- local options = cjson.decode(redis.call('hget', key_jobs, 'options'))
 
-    if options.retries == 0 then
-        setFailed(key_jobs, key_expires, error.message)
+    if args.options.retries == 0 then
+        setFailed(args.jid, args.exception.message)
     else
-        setFailed(key_jobs, key_expires, 'No more retries available')
+        setFailed(args.jid, 'No more retries available')
     end
 
 
 else -- retry it after delay
 
-    local score = NOW + error.retryDelay
+    local score = NOW + args.exception.retryDelay
 
-    if error.progressiveDelay then
+    if args.exception.progressiveDelay then
         local retries = redis.call('hget', key_jobs, 'retries')
-        score = NOW + (retries * error.retryDelay)
+        score = NOW + (retries * args.exception.retryDelay)
     end
 
     -- add job to delayed queue
-    redis.call('zadd', key_delayed, score, jid)
+    redis.call('zadd', 'bee:ss:delayed:' .. args.queue, score, args.jid)
 
-    addToHistory(key_jobs, 'delayed', {
+    addToHistory(args.jid, 'delayed', {
         till = score
     })
 
 end
 
-return jid
+return args.jid
 

@@ -1,12 +1,10 @@
 local HIVE = ARGV[1]
 local NOW = tonumber(ARGV[2])
 
+local args = assert(cjson.decode(ARGV[3]), 'Script arguments are missing or not JSON: ' .. tostring(ARGV[3]))
+
 -- include 'includes/hive.lua'
 -- include 'job/includes/index.lua'
-
-local key_jobs      = assert(KEYS[1])
-
-local jid    = assert(ARGV[3], 'job/cancel: Arg "jid" missing')
 
 local cancelJob
 
@@ -14,9 +12,14 @@ cancelJob = function(jid)
 
     local status, queue, jid, worker = unpack(redis.call('hmget', 'bee:h:jobs:' .. jid, 'status', 'queue', 'jid', 'worker'))
 
-    -- redis.log(redis.LOG_NOTICE, 'canceling', queue, status, jid)
-
     if jid then
+
+        hivelog({
+            event = 'Cancel Job',
+            jid   = jid,
+            queue = queue,
+            status = status
+        })
 
         if status == 'running' then -- the job is running on a worker
 
@@ -33,7 +36,7 @@ cancelJob = function(jid)
 
         end
 
-        addToHistory('bee:h:jobs:' .. jid, 'canceled')
+        addToHistory(jid, 'canceled')
 
         setExpired(jid, 'canceled')
 
@@ -46,15 +49,8 @@ cancelJob = function(jid)
         redis.call('publish', 'bee:ch:q:' .. queue, cjson.encode({
             jid = jid,
             type = 'canceled',
-            job = getJob('bee:h:jobs:' .. jid)
+            job = getJob(jid)
         }))
-
-        -- Send out a log message
-        hivelog({
-            jid = jid,
-            event = 'canceled',
-            queue = queue
-        })
 
         notifyDependants(jid)
 
@@ -66,4 +62,4 @@ cancelJob = function(jid)
 
 end
 
-return cancelJob(jid)
+return cancelJob(args.jid)
