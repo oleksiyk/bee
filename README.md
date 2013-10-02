@@ -404,6 +404,8 @@ Written when job is successfully completed.
 Written when job was canceled by request (see [job cancelling](#cancel))
 * `expiredLock`
 Written when worker lock on job has expired. This means that the worker that was doing this job has died or otherwise not able to connect to Redis server. The job will be retried.
+* `dependancyWaiting`
+Written when job is put on hold due to not yet resolved dependencies.
 
 <a name="cancel"></a>
 ### Job cancelling
