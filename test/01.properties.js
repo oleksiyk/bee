@@ -395,10 +395,6 @@ describe('Objects, methods and properties', function () {
                 workerJob.options.should.have.property('delay').that.is.a('number')
             })
 
-            it('has #timeout property', function () {
-                workerJob.options.should.have.property('timeout').that.is.a('number')
-            })
-
             it('has #retryDelay property', function () {
                 workerJob.options.should.have.property('retryDelay').that.is.a('number')
             })
@@ -449,10 +445,6 @@ describe('Objects, methods and properties', function () {
 
             it('#delay', function () {
                 workerJob2.options.should.have.property('delay').that.is.a('number').and.equal(job2Options.delay)
-            })
-
-            it('#timeout', function () {
-                workerJob2.options.should.have.property('timeout').that.is.a('number').and.equal(job2Options.timeout)
             })
 
         })

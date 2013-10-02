@@ -79,13 +79,6 @@ describe('Failed jobs', function () {
                     worker: failedSpyHashThrowWorker
                 })
 
-                // this worker will return undefined instead of result
-                hive.bee('test.failed.undefined', {
-                    worker: function (job, a) {
-                        job.options.retries = 1;
-                    }
-                })
-
                 // this worker will forget to resolve the promise
                 hive.bee('test.failed.timeout', {
                     timeout: 3000,
@@ -286,36 +279,6 @@ describe('Failed jobs', function () {
 
     })
 
-
-    describe('Worker function returns undefined (job.options.retries=1) #slow', function () {
-
-        var job, start;
-
-        before(function () {
-            start = Date.now();
-
-            return hive.do('test.failed.undefined', 321, Math.random()).then(function (res) {
-                job = res;
-            })
-        })
-
-        it('should be rejected in about 30 seconds', function () {
-
-            this.timeout(35 * 1000);
-
-            return job.result()
-                .fail(function () {
-                    (Date.now() - start).should.be.closeTo(30 * 1000, 1000)
-                })
-        })
-
-        it('should be rejected with Error(No more retries)', function () {
-            return job.result()
-                .should.be.rejectedWith(Error, 'No more retries');
-        })
-
-    })
-
     describe('Worker timeout (unfulfilled promise) (bee.timeout=3000, job.options.retries=0) #slow', function () {
 
         var job, start;
@@ -338,9 +301,9 @@ describe('Failed jobs', function () {
                 })
         })
 
-        it('should be rejected with Error(Timed out)', function () {
+        it('should be rejected with Error(timed out)', function () {
             return job.result()
-                .should.be.rejectedWith(Error, 'Timed out');
+                .should.be.rejectedWith(Error, 'Worker method timed out');
         })
 
     })
@@ -367,9 +330,9 @@ describe('Failed jobs', function () {
                 })
         })
 
-        it('should be rejected with Error(Timed out)', function () {
+        it('should be rejected with Error(timed out)', function () {
             return job.result()
-                .should.be.rejectedWith(Error, 'Timed out');
+                .should.be.rejectedWith(Error, 'Hash method timed out');
         })
 
     })
