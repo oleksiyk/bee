@@ -225,11 +225,11 @@ describe('Job cancel', function () {
         })
 
         it('job2 is duplicate of job', function () {
-            return job2.duplicate_jid.should.be.equal(job.jid)
+            return job2.duplicateJid.should.be.equal(job.jid)
         })
 
         it('job3 is not duplicate', function () {
-            return should.not.exist(job3.duplicate_jid)
+            return should.not.exist(job3.duplicateJid)
         })
 
         it('hive.job(job.jid) is rejected with "Canceled"', function () {
@@ -287,11 +287,11 @@ describe('Job cancel', function () {
         })
 
         it('job2 is duplicate of job', function () {
-            return job2.duplicate_jid.should.be.equal(job.jid)
+            return job2.duplicateJid.should.be.equal(job.jid)
         })
 
         it('job3 is not duplicate', function () {
-            return should.not.exist(job3.duplicate_jid)
+            return should.not.exist(job3.duplicateJid)
         })
 
         it('hive.job(job.jid) is rejected with "Canceled"', function () {

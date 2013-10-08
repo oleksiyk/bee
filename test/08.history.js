@@ -81,8 +81,8 @@ describe('Job history', function () {
                 .and.include('duplicate')
         })
 
-        it('duplicate event contains correct duplicate_jid property', function () {
-            _.find(job2.history, {event: 'duplicate'}).should.have.a.property('duplicate_jid').that.is.equal(job.jid)
+        it('duplicate event contains correct duplicateJid property', function () {
+            _.find(job2.history, {event: 'duplicate'}).should.have.a.property('duplicateJid').that.is.equal(job.jid)
         })
 
     })

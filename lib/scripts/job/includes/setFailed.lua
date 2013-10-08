@@ -19,7 +19,7 @@ setFailed = function(jid, message)
 
     -- set job status to 'failed'
     redis.call('hmset', key_jobs,
-        'failed_reason', message,
+        'failedReason', message,
         'status', 'failed')
 
     addToHistory(jid, 'failed', {

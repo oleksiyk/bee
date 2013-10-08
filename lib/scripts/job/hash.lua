@@ -27,12 +27,12 @@ end
 redis.call('hset', key_jobs, 'hash', args.hash)
 
 -- check if this job has duplicates
-local duplicate_jid = redis.call('lindex', key_hash, 0) or false
+local duplicateJid = redis.call('lindex', key_hash, 0) or false
 
 -- push the job to duplicates list (create if doesn't exist)
 redis.call('rpush', key_hash, args.jid)
 
-if duplicate_jid then
+if duplicateJid then
 
     -- Remove the lock
     redis.call('zrem', 'bee:ss:locks:' .. args.queue, args.jid)
@@ -42,14 +42,14 @@ if duplicate_jid then
 
     -- update job to point at original duplicate
     redis.call('hmset', key_jobs,
-        'duplicate', duplicate_jid,
+        'duplicate', duplicateJid,
         'status', 'duplicate')
 
-    -- duplicate_status = redis.call('hget', 'bee:h:jobs:' .. duplicate_jid, 'status')
+    -- duplicate_status = redis.call('hget', 'bee:h:jobs:' .. duplicateJid, 'status')
 
     addToHistory(args.jid, 'duplicate', {
         worker = args.worker,
-        duplicate_jid = duplicate_jid
+        duplicateJid = duplicateJid
     })
 
     -- send duplicate notification
@@ -63,11 +63,11 @@ if duplicate_jid then
     hivelog({
         jid   = args.jid,
         event = 'Job is duplicate',
-        duplicate_jid = duplicate_jid,
+        duplicateJid = duplicateJid,
         queue = args.queue
     })
 
 end
 
-return cjson.encode(duplicate_jid)
+return cjson.encode(duplicateJid)
 

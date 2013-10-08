@@ -359,7 +359,7 @@ describe('Failed jobs', function () {
         })
 
         it('second job should be marked as duplicate', function () {
-            return job2.duplicate_jid.should.equal(job1.jid);
+            return job2.duplicateJid.should.equal(job1.jid);
         })
 
         it('job loaded with hive.job(jid) should be the same', function () {
@@ -402,7 +402,7 @@ describe('Failed jobs', function () {
         })
 
         it('second job should be marked as duplicate', function () {
-            return job2.duplicate_jid.should.equal(job1.jid);
+            return job2.duplicateJid.should.equal(job1.jid);
         })
 
         it('execution time for both jobs should be very close (+-20ms)', function () {
