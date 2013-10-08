@@ -1,8 +1,11 @@
+"use strict";
+
 var os = require("os");
 var crypto = require('crypto')
 
 var Q = require('q')
 
+/* global describe, it, before, hivelib, sinon */
 
 describe('Objects, methods and properties', function () {
 
@@ -29,65 +32,41 @@ describe('Objects, methods and properties', function () {
             })
 
             it('should return Hive object', function () {
-                var hive = hivelib.createHive();
+                hive = hivelib.createHive();
 
                 hive.should.be.a('object').and.have.property('id')
             })
         })
-
-        describe('#createHivePromised', function () {
-
-            it('should be a function', function () {
-                hivelib.should.respondTo('createHivePromised')
-            })
-
-            it('should return a promise', function () {
-                hivePromise = hivelib.createHivePromised();
-
-                Q.isPromise(hivePromise).should.be.ok
-            })
-
-            it('returned promise should resolve', function () {
-                return hivePromise.should.be.fulfilled;
-            })
-
-        })
-
     })
-
 
     describe('hive', function () {
 
         var jobPromise;
 
         before(function () {
-            return hivePromise.then(function (res) {
-                hive = res;
 
-                hive
-                    .on('log', function (message) {
-                        if (message.level == 'error') {
-                            global.hiveError = message.message;
-                        }
-                    })
-
-                // create a spy for worker function
-                workerSpy = sinon.spy(function (job, a) {
-                    return a;
+            hive
+                .on('log', function (message) {
+                    if (message.level == 'error') {
+                        global.hiveError = message.message;
+                    }
                 })
 
-                // create a spy for hash function
-                hashSpy = sinon.spy(function (job, a) {
-                    return crypto.createHash('sha1').update(JSON.stringify(job.data)).digest("hex")
-                })
-
-                bee = hive.bee(queueName, {
-                    hash: hashSpy,
-                    worker: workerSpy
-                })
-
-
+            // create a spy for worker function
+            workerSpy = sinon.spy(function (job, a) {
+                return a;
             })
+
+            // create a spy for hash function
+            hashSpy = sinon.spy(function (job) {
+                return crypto.createHash('sha1').update(JSON.stringify(job.data)).digest("hex")
+            })
+
+            bee = hive.bee(queueName, {
+                hash: hashSpy,
+                worker: workerSpy
+            })
+
         })
 
         it('should have #id property', function () {

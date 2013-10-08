@@ -1,71 +1,69 @@
+"use strict";
+
+/* global describe, it, before, hivelib, sinon */
+
 var Q = require('q');
 
 describe('Progress notifications', function () {
 
-    var hive;
+    var hive = hivelib.createHive();
 
     before(function () {
 
-        return hivelib.createHivePromised()
-            .then(function (res) {
-
-                hive = res;
-
-                hive
-                    .on('log', function (message) {
-                        if (message.level == 'error') {
-                            global.hiveError = message.message;
-                        }
-                    })
-
-                // will send progress notifications each 100ms until resolved
-                hive.bee('test.progress.1', {
-                    worker: function (job, a) {
-                        var deferred = Q.defer();
-                        var progress = 0;
-
-                        var f = function () {
-
-                            progress += 10;
-
-                            deferred.notify(progress);
-
-                            if (progress == 100) {
-                                deferred.resolve(a)
-                            } else {
-                                setTimeout(f, 100);
-                            }
-                        }
-
-                        f();
-
-                        return deferred.promise;
-                    }
-                })
-
-                // should bubble the progress from child job
-                hive.bee('test.progress.2', {
-                    worker: function (job, a) {
-
-                        return hive.do('test.progress.1', a, Math.random()).post('result')
-                            .thenResolve(a + a);
-
-                    }
-                })
-
-                // should modify child progress by adding 1 (11, 21, 31...)
-                hive.bee('test.progress.3', {
-                    worker: function (job, a) {
-
-                        return hive.do('test.progress.2', a, Math.random()).post('result')
-                            .progress(function (progress) {
-                                return progress + 1;
-                            })
-                            .thenResolve(a + a);
-
-                    }
-                })
+        hive
+            .on('log', function(message) {
+                if (message.level == 'error') {
+                    global.hiveError = message.message;
+                }
             })
+
+        // will send progress notifications each 100ms until resolved
+        hive.bee('test.progress.1', {
+            worker: function(job, a) {
+                var deferred = Q.defer();
+                var progress = 0;
+
+                var f = function() {
+
+                    progress += 10;
+
+                    deferred.notify(progress);
+
+                    if (progress == 100) {
+                        deferred.resolve(a)
+                    } else {
+                        setTimeout(f, 100);
+                    }
+                }
+
+                f();
+
+                return deferred.promise;
+            }
+        })
+
+        // should bubble the progress from child job
+        hive.bee('test.progress.2', {
+            worker: function(job, a) {
+
+                return hive.do('test.progress.1', a, Math.random()).post('result')
+                    .thenResolve(a + a);
+
+            }
+        })
+
+        // should modify child progress by adding 1 (11, 21, 31...)
+        hive.bee('test.progress.3', {
+            worker: function(job, a) {
+
+                return hive.do('test.progress.2', a, Math.random()).post('result')
+                    .progress(function(progress) {
+                        return progress + 1;
+                    })
+                    .thenResolve(a + a);
+
+            }
+        })
     })
 
     describe('Single job progress', function () {

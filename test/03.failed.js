@@ -1,147 +1,144 @@
+"use strict";
+
+/* global describe, it, before, hivelib, sinon */
+
 var Q = require('q')
 
-
 describe('Failed jobs', function () {
-    var hive, failedSpyThrow, failedSpyHashThrowHash, failedSpyHashThrowWorker;
+    var hive = hivelib.createHive(), failedSpyThrow, failedSpyHashThrowHash, failedSpyHashThrowWorker;
 
-    before(function () {
+    before(function() {
 
-        return hivelib.createHivePromised()
-            .then(function (res) {
-                hive = res;
-
-                hive
-                    .on('log', function (message) {
-                        if (message.level == 'error') {
-                            global.hiveError = message.message;
-                        }
-                    })
-
-                // this worker will permanently reject any negative number
-                hive.bee('test.failed.sqrt', {
-                    worker: function (job, a) {
-
-                        if (a < 0) {
-                            throw {
-                                message: 'Argument must be positive',
-                                retry: false
-                            }
-                        }
-
-                        return Math.sqrt(a);
-                    }
-                })
-
-                // this worker rejects the job without throwing an exception
-                hive.bee('test.failed.rejectedPromise', {
-                    worker: function(job){
-                        var deferred = Q.defer();
-
-                        Q.delay(2000).then(function () {
-                            deferred.reject({
-                                message: 'Rejected promise',
-                                retry: false
-                            })
-                        })
-
-                        return deferred.promise;
-                    }
-                })
-
-                // this worker will throw a error for a 'fresh' job, which should than be processed in retry after 30s
-                failedSpyThrow = sinon.spy(function (job, a) {
-
-                    // fail the 'fresh' job
-                    if (job.submitted > (Date.now() - 500)) {
-                        throw new Error('Your job is too fresh!')
-                    }
-
-                    return a;
-                })
-
-                hive.bee('test.failed.throw', {
-                    worker: failedSpyThrow
-                })
-
-
-                // this worker will emit error in hash function so the job should eventually fail permanently
-                failedSpyHashThrowHash = sinon.spy(function (job, a) {
-                    job.options.retries = 1;
-                    eval('abracadabra');
-                })
-
-                failedSpyHashThrowWorker = sinon.spy(function (job, a) {
-                    return a;
-                })
-
-                hive.bee('test.failed.hash.throw', {
-                    hash: failedSpyHashThrowHash,
-                    worker: failedSpyHashThrowWorker
-                })
-
-                // this worker will forget to resolve the promise
-                hive.bee('test.failed.timeout', {
-                    timeout: 3000,
-                    worker: function (job, a) {
-
-                        job.options.retries = 0;
-
-                        var deferred = Q.defer();
-
-                        return deferred.promise;
-                    }
-                })
-
-                // this worker will forget to resolve the HASH promise
-                hive.bee('test.failed.timeout.hash', {
-                    timeout: 3000,
-                    hash: function (job, a) {
-
-                        job.options.retries = 0;
-
-                        var deferred = Q.defer();
-
-                        return deferred.promise;
-                    },
-                    worker: function (job, a) {
-                        return a;
-                    }
-                })
-
-                // this worker will permanently reject any negative number after delay
-                hive.bee('test.failed.sqrt.slow', {
-                    worker: function (job, a) {
-
-                        return Q.delay(3000).then(function () {
-                            if (a < 0) {
-                                throw {
-                                    message: 'Argument must be positive',
-                                    retry: false
-                                }
-                            }
-
-                            return Math.sqrt(a)
-                        });
-                    }
-                })
-
-                // this worker should test hash method
-                hive.bee('test.failed.hash.results', {
-                    hash: function (job, a) {
-                        job.options.retries = 0;
-
-                        if (a === 0) throw 'Exception as string'
-
-                        if (a === -1) a = undefined;
-
-                        return a;
-                    },
-                    worker: function (job, a) {
-                        return a;
-                    }
-                })
-
+        hive
+            .on('log', function(message) {
+                if (message.level == 'error') {
+                    global.hiveError = message.message;
+                }
             })
+
+        // this worker will permanently reject any negative number
+        hive.bee('test.failed.sqrt', {
+            worker: function(job, a) {
+
+                if (a < 0) {
+                    throw {
+                        message: 'Argument must be positive',
+                        retry: false
+                    }
+                }
+
+                return Math.sqrt(a);
+            }
+        })
+
+        // this worker rejects the job without throwing an exception
+        hive.bee('test.failed.rejectedPromise', {
+            worker: function(job) {
+                var deferred = Q.defer();
+
+                Q.delay(2000).then(function() {
+                    deferred.reject({
+                        message: 'Rejected promise',
+                        retry: false
+                    })
+                })
+
+                return deferred.promise;
+            }
+        })
+
+        // this worker will throw a error for a 'fresh' job, which should than be processed in retry after 30s
+        failedSpyThrow = sinon.spy(function(job, a) {
+
+            // fail the 'fresh' job
+            if (job.submitted > (Date.now() - 500)) {
+                throw new Error('Your job is too fresh!')
+            }
+
+            return a;
+        })
+
+        hive.bee('test.failed.throw', {
+            worker: failedSpyThrow
+        })
+
+
+        // this worker will emit error in hash function so the job should eventually fail permanently
+        failedSpyHashThrowHash = sinon.spy(function(job, a) {
+            job.options.retries = 1;
+            eval('abracadabra');
+        })
+
+        failedSpyHashThrowWorker = sinon.spy(function(job, a) {
+            return a;
+        })
+
+        hive.bee('test.failed.hash.throw', {
+            hash: failedSpyHashThrowHash,
+            worker: failedSpyHashThrowWorker
+        })
+
+        // this worker will forget to resolve the promise
+        hive.bee('test.failed.timeout', {
+            timeout: 3000,
+            worker: function(job, a) {
+
+                job.options.retries = 0;
+
+                var deferred = Q.defer();
+
+                return deferred.promise;
+            }
+        })
+
+        // this worker will forget to resolve the HASH promise
+        hive.bee('test.failed.timeout.hash', {
+            timeout: 3000,
+            hash: function(job, a) {
+
+                job.options.retries = 0;
+
+                var deferred = Q.defer();
+
+                return deferred.promise;
+            },
+            worker: function(job, a) {
+                return a;
+            }
+        })
+
+        // this worker will permanently reject any negative number after delay
+        hive.bee('test.failed.sqrt.slow', {
+            worker: function(job, a) {
+
+                return Q.delay(3000).then(function() {
+                    if (a < 0) {
+                        throw {
+                            message: 'Argument must be positive',
+                            retry: false
+                        }
+                    }
+
+                    return Math.sqrt(a)
+                });
+            }
+        })
+
+        // this worker should test hash method
+        hive.bee('test.failed.hash.results', {
+            hash: function(job, a) {
+                job.options.retries = 0;
+
+                if (a === 0) throw 'Exception as string'
+
+                if (a === -1) a = undefined;
+
+                return a;
+            },
+            worker: function(job, a) {
+                return a;
+            }
+        })
 
     })
 

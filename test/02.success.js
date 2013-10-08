@@ -1,31 +1,27 @@
+"use strict";
+
+/* global describe, it, before, hivelib, sinon */
+
 describe('Successful job and duplicate', function () {
-    var hive, spy, job, random = Math.random(); // use random number for repeated tests
+    var hive = hivelib.createHive(), spy, job, random = Math.random(); // use random number for repeated tests
 
-    before(function(){
+    before(function() {
 
-        return hivelib.createHivePromised()
-            .then(function (res) {
-                hive = res;
+        // create a spy for worker function
+        spy = sinon.spy(function(job, a, b) {
+            return a + b;
+        })
 
-                // create a spy for worker function
-                spy = sinon.spy(function(job, a, b){
-                    return a+b;
-                })
+        hive.bee('test.basic.sum', {
+            worker: spy
+        })
 
-                hive.bee('test.basic.sum', {
-                    worker: spy
-                })
-
-                hive
-                    .on('log', function (message) {
-                        if (message.level == 'error') {
-                            global.hiveError = message.message;
-                        }
-                    })
+        hive
+            .on('log', function(message) {
+                if (message.level == 'error') {
+                    global.hiveError = message.message;
+                }
             })
-
-
-
     })
 
     describe('Calculate sum(2, 3)', function () {

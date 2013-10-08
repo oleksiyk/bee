@@ -1,44 +1,41 @@
-var Q = require('q');
+"use strict";
+
+/* global describe, it, before, hivelib */
+
+// var Q = require('q');
 var _ = require('lodash')
 
 describe('Job history', function () {
 
-    var hive;
+    var hive = hivelib.createHive();
 
     before(function () {
 
-        return hivelib.createHivePromised()
-            .then(function (res) {
-
-                hive = res;
-
-                hive
-                    .on('log', function (message) {
-                        if (message.level == 'error') {
-                            global.hiveError = message.message;
-                        }
-                    })
-
-                hive.bee('test.history.1', {
-                    worker: function (job, a) {
-                        return a;
-                    }
-                })
-
-                hive.bee('test.history.failed', {
-                    worker: function (job, a) {
-                        job.options.retries = 2;
-
-                        throw {
-                            message: 'Bad job',
-                            retryDelay: 1000
-                        }
-
-                        return a;
-                    }
-                })
-
+        hive
+            .on('log', function(message) {
+                if (message.level == 'error') {
+                    global.hiveError = message.message;
+                }
             })
+
+        hive.bee('test.history.1', {
+            worker: function(job, a) {
+                return a;
+            }
+        })
+
+        hive.bee('test.history.failed', {
+            worker: function(job, a) {
+                job.options.retries = 2;
+
+                throw {
+                    message: 'Bad job',
+                    retryDelay: 1000
+                }
+
+                return a;
+            }
+        })
     })
 
     describe('Successful job and its duplicate', function () {
@@ -174,7 +171,7 @@ describe('Job history', function () {
                     job = _job;
                     job.cancel();
                     return job.result().fail(function () {
-                        
+
                     })
                 })
         })
