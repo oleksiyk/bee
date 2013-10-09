@@ -45,12 +45,9 @@ describe('Objects, methods and properties', function () {
 
         before(function () {
 
-            hive
-                .on('log', function (message) {
-                    if (message.level == 'error') {
-                        global.hiveError = message.message;
-                    }
-                })
+            hive.on('error', function(err) {
+                global.hiveError = err;
+            })
 
             // create a spy for worker function
             workerSpy = sinon.spy(function (job, a) {

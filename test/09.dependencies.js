@@ -1,6 +1,6 @@
 "use strict";
 
-/* global describe, it, before, hivelib, sinon */
+/* global describe, it, before, hivelib */
 
 var Q = require('q');
 var _ = require('lodash')
@@ -11,12 +11,9 @@ describe('Job dependencies', function () {
 
     before(function () {
 
-        hive
-            .on('log', function(message) {
-                if (message.level == 'error') {
-                    global.hiveError = message.message;
-                }
-            })
+        hive.on('error', function(err) {
+            global.hiveError = err;
+        })
 
         hive.bee('test.dependencies', {
             worker: function(job, a) {

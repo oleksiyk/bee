@@ -10,12 +10,9 @@ describe('Progress notifications', function () {
 
     before(function () {
 
-        hive
-            .on('log', function(message) {
-                if (message.level == 'error') {
-                    global.hiveError = message.message;
-                }
-            })
+        hive.on('error', function(err) {
+            global.hiveError = err;
+        })
 
         // will send progress notifications each 100ms until resolved
         hive.bee('test.progress.1', {

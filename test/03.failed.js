@@ -9,12 +9,9 @@ describe('Failed jobs', function () {
 
     before(function() {
 
-        hive
-            .on('log', function(message) {
-                if (message.level == 'error') {
-                    global.hiveError = message.message;
-                }
-            })
+        hive.on('error', function(err) {
+            global.hiveError = err;
+        })
 
         // this worker will permanently reject any negative number
         hive.bee('test.failed.sqrt', {

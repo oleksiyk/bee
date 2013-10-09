@@ -10,12 +10,9 @@ describe('Job tags', function () {
 
     before(function () {
 
-        hive
-            .on('log', function(message) {
-                if (message.level == 'error') {
-                    global.hiveError = message.message;
-                }
-            })
+        hive.on('error', function(err) {
+            global.hiveError = err;
+        })
 
         hive.bee('test.tags.1', {
             worker: function(job, tags) {

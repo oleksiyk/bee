@@ -16,12 +16,9 @@ describe('Successful job and duplicate', function () {
             worker: spy
         })
 
-        hive
-            .on('log', function(message) {
-                if (message.level == 'error') {
-                    global.hiveError = message.message;
-                }
-            })
+        hive.on('error', function(err) {
+            global.hiveError = err;
+        })
     })
 
     describe('Calculate sum(2, 3)', function () {
