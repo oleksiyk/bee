@@ -29,30 +29,38 @@ for index, jid in ipairs(redis.call('zrangebyscore', key_locks, 0, NOW)) do
 
     local old_worker = redis.call('hget', 'bee:h:jobs:' .. jid, 'worker')
 
-    hivelog({
-        event = 'Expired Job lock',
-        jid   = jid,
-        queue = args.queue,
-        old_worker = old_worker
-    })
+    -- give worker 3 attempts to remind about itself
+    if tonumber(redis.call('incr', 'bee:str:lock-waits:' .. old_worker .. ':' .. jid) or 0) > 3 then
 
-    addToHistory(jid, 'expiredLock', {
-        old_worker = old_worker
-    })
+        hivelog({
+            event = 'Expired Job lock',
+            jid   = jid,
+            queue = args.queue,
+            old_worker = old_worker
+        })
 
-    -- Remove the lock
-    redis.call('zrem', key_locks, jid)
+        addToHistory(jid, 'expiredLock', {
+            old_worker = old_worker
+        })
 
-    -- Remove job from set of jobs running on old worker
-    redis.call('srem', 'bee:s:locks:' .. old_worker, jid)
+        -- Remove the lock
+        redis.call('zrem', key_locks, jid)
 
-    -- check number of retries
-    if incrementRetries(jid) then -- job failed all its retries
+        -- Remove job from set of jobs running on old worker
+        redis.call('srem', 'bee:s:locks:' .. old_worker, jid)
 
-        setFailed(jid, 'no more retries available')
+        -- check number of retries
+        if incrementRetries(jid) then -- job failed all its retries
 
-    else  -- put it back to working queue
-        addToWorkingQueue(jid)
+            setFailed(jid, 'no more retries available')
+
+        else  -- put it back to working queue
+            addToWorkingQueue(jid)
+        end
+    else
+        -- increment job lock timeout (score)
+        -- this will give worker 30 seconds for each of 3 attempts to notify about itself
+        redis.call('zincrby', key_locks, 30*1000, jid)
     end
 
 end
