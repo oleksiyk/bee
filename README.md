@@ -3,7 +3,7 @@ Bee is a job queue for [Node](http://nodejs.org) built on top of  [Redis](http:/
 
 Bee doesn't have a central server or dedicated workers (but you may have them if you need) instead it allows you to easily split workers and clients between multiple node instances or parts of your application.
 
-The core part of Bee is Hive. When you need to submit job you first create a hive with 
+The core part of Bee is Hive. When you need to submit job you first create a hive with
 
 ```javascript
 var hive = require('bee').createHive()
@@ -27,10 +27,10 @@ hive.bee('Images.Resize', {
 
 Internally bee works with [Q](https://github.com/kriskowal/q/) promises which makes it easy to construct complex job workflows and handle possible errors.
 
-### Status 
+### Status
 Beta
 
-### Features 
+### Features
 * [Duplicates detection](#duplicates)
 * [Intelligent error processing](#errors)
 * [Job progress notifications](#progress)
@@ -44,37 +44,24 @@ Beta
 ## Usage
 
 ### Hive creation
-Bee library exports two functions you can use to create hive:
 
-* `.createHive(options)`
-* `.createHivePromised(options)`
+`.createHive(options)`
 
-The first one returns hive instance which you can start using as soon as it have emitted 'ready' event:
+The function returns hive instance which you can start using right away:
 
 ```javascript
 var hive = require('bee').createHive();
-hive.on('ready', function(){
-	var job = hive.do('Image.Resize', …)
-});
-```
-
-The second one returns a promise that will be resolved once hive has connected to Redis server:
-
-```javascript
-require('bee').createHivePromised().then(function(hive){
-	var job = hive.do('Image.Resize', …)
-});
-
+var job = hive.do('Image.Resize', …)
 ```
 
 ### Hive object
-* `.id` 
+* `.id`
 
 ```javascript
 /**
  * @type {String}
  *
- * Unique ID of this hive object, consists of hostname,  
+ * Unique ID of this hive object, consists of hostname,
  * process.pid and some unique string, example:
  * `Oleksiys-MacBook-Pro.local:42785:c16b0010-08fd-11e3-8a91-ed3255a3c666`
 */
@@ -153,7 +140,7 @@ hive.bee('Image.Resize', {
 
 The first parameter passed to worker function is a job handle, all the rest are the parameters passed to `hive.do()` when submitting a job.
 
-Worker function is expected to return a promise (or the value) or throw an exception. See more about error handling below. 
+Worker function is expected to return a promise (or the value) or throw an exception. See more about error handling below.
 
 The minimal configuration for `beeSpec` object is a `worker` function, but there are other properties you can customise:
 
@@ -161,7 +148,7 @@ The minimal configuration for `beeSpec` object is a `worker` function, but there
 	```javascript
 	hash: null // null, false or function
 	```
-The hash function is used to detect duplicates and avoid doing the same job many times (you can control how long your completed job stays valid with `job.options.ttl` property). There is a default hash function which computes the SHA1 hash of all job workload parameters (imagePath + width + height in this example). 
+The hash function is used to detect duplicates and avoid doing the same job many times (you can control how long your completed job stays valid with `job.options.ttl` property). There is a default hash function which computes the SHA1 hash of all job workload parameters (imagePath + width + height in this example).
 Hash function is expected to return a promise or the value (or throw an exception).
 Set `hash` to `null` to use default hash function, set it to `false` to disable duplicates detection or set it to function (which accepts exactly the same parameters as `worker`) to compute hash yourself.
 * `concurrency` - concurrency limit, sets the maximum number of jobs this worker can accept and process at once (asynchronously of course):
@@ -199,7 +186,7 @@ You can have a precise control over failed job retries process with job options 
 1. See the description for `job.options.retries`, `job.options.retryDelay`, `job.options.progressiveDelay` in the [Job options](#optionslist) section below.
 2. Exception properties:
 You can also control job retries with the properties of thrown exception (or promise rejection value):
-	
+
 	```javascript
 	hive.bee('Image.Resize', {
 		worker: function(job, imagePath, width, height){
@@ -265,7 +252,7 @@ You can also control job retries with the properties of thrown exception (or pro
         	.progress(function (progress) {
         		process.stdout.write('\rProcessing progress=' + Number(progress).toFixed(2) + '%')
         	})
-	
+
 	```
 
 
@@ -276,7 +263,7 @@ There are job options you can set on client (with `hive.do()`) or in worker:
 
 1. Setting job options with `hive.do()`:
 Just pass an object instead of string as first argument to `hive.do()`:
-	
+
 	```javascript
 	hive.do({
 		name: 'Image.Resize',
@@ -285,12 +272,12 @@ Just pass an object instead of string as first argument to `hive.do()`:
 	}, imagePath, width, height)
 	```
 2. Setting job options in the worker:
-	
+
 	```javascript
 	hive.bee('Image.Resize', {
 		worker: function(job, imagePath, width, height){
-			job.options.retryDelay = 3000; 
-			job.options.progressiveDelay = true; 
+			job.options.retryDelay = 3000;
+			job.options.progressiveDelay = true;
 		}
 	})
 	```
@@ -299,7 +286,7 @@ Just pass an object instead of string as first argument to `hive.do()`:
 List of job options:
 
 * `job.options.delay=0`
-Delays job execution for the specified amount of milliseconds. 
+Delays job execution for the specified amount of milliseconds.
 * `job.options.retries=5`
 Can be set on worker only. Specifies amount of retries for the failed job. If retries=0 the job will be rejected on first error. The job will fail with 'No more retries available' error if all retries have been exhausted.
 * `job.options.retryDelay=30000`
@@ -316,7 +303,7 @@ Please note that the value you set for TTL is not a high precision exact amount 
 Stacking up jobs is easy:
 
 * Clients sends a task to resize remote image (by URL):
-	
+
 	```javascript
 	hive.do('Image.Resize.Remote', 'http://www.example.org/image.jpg', 300, 300)
 	.post('result')
@@ -325,7 +312,7 @@ Stacking up jobs is easy:
 	})
 	```
 * Worker splits the job:
-	
+
 	```javascript
 	// this one will resize local image
 	hive.bee('Image.Resize', {
@@ -333,7 +320,7 @@ Stacking up jobs is easy:
 			// resize ..
 		}
 	});
-	
+
 	// this one will download the image
 	hive.bee('Image.Download', {
 		worker: function(job, url){
@@ -341,7 +328,7 @@ Stacking up jobs is easy:
 			return '/tmp/image.jpg'
 		}
 	});
-	
+
 	// this one combines all together
 	hive.bee('Image.Resize.Remote', {
 		worker: function(url, width, height){
@@ -363,7 +350,7 @@ When submitting job it is possible to provide a list of JIDs on which this new j
 ```javascript
 hive.do({
 	name: 'test.dependencies',
-	dependencies: [otherJob1.jid, otherJob2.jid] // wait for these two jobs before starting 
+	dependencies: [otherJob1.jid, otherJob2.jid] // wait for these two jobs before starting
 }, 'workload').post('result').then...
 
 ```
@@ -406,7 +393,7 @@ Written when job is put on hold due to not yet resolved dependencies.
 
 <a name="cancel"></a>
 ### Job cancelling
-Cancelling jobs may be useful with delayed jobs but you may also cancel running or completed/failed jobs as well. 
+Cancelling jobs may be useful with delayed jobs but you may also cancel running or completed/failed jobs as well.
 
 * `Delayed job`
 Delayed job will be simply set to 'expired' state right away.

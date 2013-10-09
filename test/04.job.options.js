@@ -1,80 +1,75 @@
+"use strict";
+
+/* global describe, it, before, hivelib, sinon */
+
 var Q = require('q')
 
 describe('Job options', function () {
-    var hive, ttlSpy, retryDelaySpy, progressiveDelaySpy;
+    var hive = hivelib.createHive(), ttlSpy, retryDelaySpy, progressiveDelaySpy;
 
     before(function () {
 
-        return hivelib.createHivePromised()
-            .then(function (res) {
+        hive.on('error', function(err) {
+            global.hiveError = err;
+        })
 
-                hive = res;
+        // worker for job.delay test
+        hive.bee('test.job.options.delay', {
+            hash: false,
+            worker: function(job, a, b) {
+                return a + b;
+            }
+        })
 
-                hive
-                    .on('log', function (message) {
-                        if (message.level == 'error') {
-                            global.hiveError = message.message;
-                        }
-                    })
+        // worker for job.ttl default test
+        ttlSpy = sinon.spy(function(job, a, b, ttl) {
+            job.options.ttl = ttl;
+            return a + b;
+        })
 
-                // worker for job.delay test
-                hive.bee('test.job.options.delay', {
-                    hash: false,
-                    worker: function (job, a, b) {
-                        return a + b;
-                    }
-                })
+        hive.bee('test.job.options.ttl', {
+            worker: ttlSpy
+        })
 
-                // worker for job.ttl default test
-                ttlSpy = sinon.spy(function (job, a, b, ttl) {
-                    job.options.ttl = ttl;
-                    return a + b;
-                })
+        // worker for job.ttl test with disabled hash function
+        hive.bee('test.job.options.ttl.nohash', {
+            hash: false,
+            worker: function(job, a, b) {
+                job.options.ttl = 2000; // 2 sec
+                return a + b;
+            }
+        })
 
-                hive.bee('test.job.options.ttl', {
-                    worker: ttlSpy
-                })
+        // this worker will mark the job as failed, which should than fail after 2 retries
+        retryDelaySpy = sinon.spy(function(job) {
 
-                // worker for job.ttl test with disabled hash function
-                hive.bee('test.job.options.ttl.nohash', {
-                    hash: false,
-                    worker: function (job, a, b) {
-                        job.options.ttl = 2000; // 2 sec
-                        return a + b;
-                    }
-                })
+            job.options.retries = 2;
+            job.options.retryDelay = 3 * 1000; // 3 seconds
 
-                // this worker will mark the job as failed, which should than fail after 2 retries
-                retryDelaySpy = sinon.spy(function (job) {
+            // fail any job
+            throw 'Bad job'
+        })
 
-                    job.options.retries = 2;
-                    job.options.retryDelay = 3*1000; // 3 seconds
+        hive.bee('test.job.options.retryDelay', {
+            worker: retryDelaySpy
+        })
 
-                    // fail any job
-                    throw 'Bad job'
-                })
+        // this worker will mark the job as failed, which should than fail within progressive timeout
+        progressiveDelaySpy = sinon.spy(function(job) {
 
-                hive.bee('test.job.options.retryDelay', {
-                    worker: retryDelaySpy
-                })
+            job.options.retries = 2;
+            job.options.retryDelay = 3 * 1000; // 3 seconds
 
-                // this worker will mark the job as failed, which should than fail within progressive timeout
-                progressiveDelaySpy = sinon.spy(function (job) {
+            // fail any job
+            throw {
+                message: 'Bad job',
+                progressiveDelay: true
+            }
+        })
 
-                    job.options.retries = 2;
-                    job.options.retryDelay = 3*1000; // 3 seconds
-
-                    // fail any job
-                    throw {
-                        message: 'Bad job',
-                        progressiveDelay: true
-                    }
-                })
-
-                hive.bee('test.job.options.progressiveDelay', {
-                    worker: progressiveDelaySpy
-                })
-            })
+        hive.bee('test.job.options.progressiveDelay', {
+            worker: progressiveDelaySpy
+        })
     })
 
     describe('.delay', function () {
@@ -146,10 +141,10 @@ describe('Job options', function () {
                 return hive.job(originalJob.jid).should.be.fulfilled;
             })
 
-            it('and should be expired after 2.5 sec', function () {
-                this.timeout(3000);
+            it('and should be expired after ~3 sec', function () {
+                this.timeout(4000);
 
-                return Q.delay(2500).then(function () {
+                return Q.delay(3000).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Expired')
                 })
             })
@@ -163,10 +158,10 @@ describe('Job options', function () {
                     })
             })
 
-            it('job should be deleted completely after another 2.5 sec', function () {
-                this.timeout(3000);
+            it('job should be deleted completely after another ~3 sec', function () {
+                this.timeout(4000);
 
-                return Q.delay(2500).then(function () {
+                return Q.delay(3000).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Not found')
                 })
             })
@@ -189,18 +184,18 @@ describe('Job options', function () {
                 return hive.job(originalJob.jid).should.be.fulfilled;
             })
 
-            it('and should be expired after 2.5 sec', function () {
-                this.timeout(3000);
+            it('and should be expired after ~3 sec', function () {
+                this.timeout(4000);
 
-                return Q.delay(2500).then(function () {
+                return Q.delay(3000).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Expired')
                 })
             })
 
-            it('job should be deleted completely after another 2.5 sec', function () {
-                this.timeout(3000);
+            it('job should be deleted completely after another ~3 sec', function () {
+                this.timeout(4000);
 
-                return Q.delay(2500).then(function () {
+                return Q.delay(3000).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Not found')
                 })
             })

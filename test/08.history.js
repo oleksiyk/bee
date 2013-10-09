@@ -1,44 +1,38 @@
-var Q = require('q');
+"use strict";
+
+/* global describe, it, before, hivelib */
+
+// var Q = require('q');
 var _ = require('lodash')
 
 describe('Job history', function () {
 
-    var hive;
+    var hive = hivelib.createHive();
 
     before(function () {
 
-        return hivelib.createHivePromised()
-            .then(function (res) {
+        hive.on('error', function(err) {
+            global.hiveError = err;
+        })
 
-                hive = res;
+        hive.bee('test.history.1', {
+            worker: function(job, a) {
+                return a;
+            }
+        })
 
-                hive
-                    .on('log', function (message) {
-                        if (message.level == 'error') {
-                            global.hiveError = message.message;
-                        }
-                    })
+        hive.bee('test.history.failed', {
+            worker: function(job, a) {
+                job.options.retries = 2;
 
-                hive.bee('test.history.1', {
-                    worker: function (job, a) {
-                        return a;
-                    }
-                })
+                throw {
+                    message: 'Bad job',
+                    retryDelay: 1000
+                }
 
-                hive.bee('test.history.failed', {
-                    worker: function (job, a) {
-                        job.options.retries = 2;
-
-                        throw {
-                            message: 'Bad job',
-                            retryDelay: 1000
-                        }
-
-                        return a;
-                    }
-                })
-
-            })
+                return a;
+            }
+        })
     })
 
     describe('Successful job and its duplicate', function () {
@@ -84,8 +78,8 @@ describe('Job history', function () {
                 .and.include('duplicate')
         })
 
-        it('duplicate event contains correct duplicate_jid property', function () {
-            _.find(job2.history, {event: 'duplicate'}).should.have.a.property('duplicate_jid').that.is.equal(job.jid)
+        it('duplicate event contains correct duplicateJid property', function () {
+            _.find(job2.history, {event: 'duplicate'}).should.have.a.property('duplicateJid').that.is.equal(job.jid)
         })
 
     })
@@ -174,7 +168,7 @@ describe('Job history', function () {
                     job = _job;
                     job.cancel();
                     return job.result().fail(function () {
-                        
+
                     })
                 })
         })
