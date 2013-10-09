@@ -1,3 +1,5 @@
+"use strict";
+
 var hive = require('../../lib').createHive();
 
 hive.on('error', function(err){
@@ -40,13 +42,9 @@ var sendWorkloadJobs = function(){
     }
 }
 
-hive.on('ready', function(){
+sendWorkloadJobs();
 
-    sendWorkloadJobs();
-
-    setInterval(function(){
-        console.log('Sent=', sent, ', rcvd=', rcvd)
-    }, 3000)
-
-})
+setInterval(function(){
+    console.log('Sent=', sent, ', rcvd=', rcvd)
+}, 3000)
 
