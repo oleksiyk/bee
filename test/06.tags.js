@@ -1,67 +1,61 @@
+"use strict";
+
+/* global describe, it, before, hivelib, sinon */
+
 var Q = require('q');
 
 describe('Job tags', function () {
 
-    var hive, spyCLientTags;
+    var hive = hivelib.createHive(), spyCLientTags;
 
     before(function () {
 
-        return hivelib.createHivePromised()
-            .then(function (res) {
+        hive.on('error', function(err) {
+            global.hiveError = err;
+        })
 
-                hive = res;
+        hive.bee('test.tags.1', {
+            worker: function(job, tags) {
+                job.options.ttl = 1500;
+                job.setTags(tags)
 
-                hive
-                    .on('log', function (message) {
-                        if (message.level == 'error') {
-                            global.hiveError = message.message;
-                        }
-                    })
+                return tags;
+            }
+        })
 
-                hive.bee('test.tags.1', {
-                    worker: function (job, tags) {
-                        job.options.ttl = 1500;
-                        job.setTags(tags)
+        spyCLientTags = sinon.spy(function(job, a) {
+            job.options.ttl = 1500;
+            return a;
+        })
 
-                        return tags;
-                    }
-                })
+        hive.bee('test.tags.client', {
+            worker: spyCLientTags
+        })
 
-                spyCLientTags = sinon.spy(function (job, a) {
-                    job.options.ttl = 1500;
-                    return a;
-                })
+        hive.bee('test.tags.failed', {
+            worker: function(job, tag) {
+                job.options.ttl = 1500;
+                job.options.retries = 2;
 
-                hive.bee('test.tags.client', {
-                    worker: spyCLientTags
-                })
+                job.setTags(job.tags.concat(tag + job.retries)) // [tag + 0], [tag + 0, tag + 1], [tag + 0, tag + 1, tag + 2]
 
-                hive.bee('test.tags.failed', {
-                    worker: function (job, tag) {
-                        job.options.ttl = 1500;
-                        job.options.retries = 2;
+                throw {
+                    message: 'Bad job',
+                    retryDelay: 1000
+                }
 
-                        job.setTags(job.tags.concat(tag + job.retries)) // [tag + 0], [tag + 0, tag + 1], [tag + 0, tag + 1, tag + 2]
+                return tag;
+            }
+        })
 
-                        throw {
-                            message: 'Bad job',
-                            retryDelay: 1000
-                        }
+        hive.bee('test.tags.list', {
+            worker: function(job) {
+                job.options.ttl = 1500;
+                job.setTags('tag1', 'tag2')
 
-                        return tag;
-                    }
-                })
-
-                hive.bee('test.tags.list', {
-                    worker: function (job) {
-                        job.options.ttl = 1500;
-                        job.setTags('tag1', 'tag2')
-
-                        return 'ok';
-                    }
-                })
-
-            })
+                return 'ok';
+            }
+        })
     })
 
     describe('Set a single string tag: job.setTags(tag123)', function () {

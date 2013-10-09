@@ -44,27 +44,14 @@ Beta
 ## Usage
 
 ### Hive creation
-Bee library exports two functions you can use to create hive:
 
-* `.createHive(options)`
-* `.createHivePromised(options)`
+`.createHive(options)`
 
-The first one returns hive instance which you can start using as soon as it have emitted 'ready' event:
+The function returns hive instance which you can start using right away:
 
 ```javascript
 var hive = require('bee').createHive();
-hive.on('ready', function(){
-	var job = hive.do('Image.Resize', …)
-});
-```
-
-The second one returns a promise that will be resolved once hive has connected to Redis server:
-
-```javascript
-require('bee').createHivePromised().then(function(hive){
-	var job = hive.do('Image.Resize', …)
-});
-
+var job = hive.do('Image.Resize', …)
 ```
 
 ### Hive object

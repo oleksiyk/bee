@@ -3,7 +3,7 @@
 var hive = require('../../lib').createHive();
 var crypto = require('crypto')
 
-var Q = require('q')
+// var Q = require('q')
 
 hive.on('log', function(log){
     if(log.level == 'error'){
@@ -21,25 +21,22 @@ setInterval(function(){
     console.log('Jobs=', rcvd)
 }, 3000)
 
-hive.on('ready', function () {
-    hive.bee('highload', {
+hive.bee('highload', {
 
-        concurrency: 1000,
+    concurrency: 1000,
 
-        hash: function(job, workload){
+    hash: function(job, workload){
 
-            return crypto.createHash('sha1').update(workload.toString()).digest("hex");
-        },
+        return crypto.createHash('sha1').update(workload.toString()).digest("hex");
+    },
 
-        worker: function (job, workload) {
+    worker: function (job, workload) {
 
-            rcvd++;
+        rcvd++;
 
-            return workload;
-        }
-    });
+        return workload;
+    }
+});
 
-
-})
 
 

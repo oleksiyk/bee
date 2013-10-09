@@ -1,64 +1,58 @@
+"use strict";
+
+/* global describe, it, before, hivelib */
+
 var Q = require('q');
 var _ = require('lodash')
 
 describe('Job dependencies', function () {
 
-    var hive;
+    var hive = hivelib.createHive();
 
     before(function () {
 
-        return hivelib.createHivePromised()
-            .then(function (res) {
+        hive.on('error', function(err) {
+            global.hiveError = err;
+        })
 
-                hive = res;
+        hive.bee('test.dependencies', {
+            worker: function(job, a) {
+                return a;
+            }
+        })
 
-                hive
-                    .on('log', function (message) {
-                        if (message.level == 'error') {
-                            global.hiveError = message.message;
-                        }
-                    })
+        hive.bee('test.dependencies.1', {
+            worker: function(job, a) {
+                return a;
+            }
+        })
 
-                hive.bee('test.dependencies', {
-                    worker: function (job, a) {
-                        return a;
-                    }
-                })
+        hive.bee('test.dependencies.2', {
+            worker: function(job, a) {
+                return a;
+            }
+        })
 
-                hive.bee('test.dependencies.1', {
-                    worker: function (job, a) {
-                        return a;
-                    }
-                })
+        hive.bee('test.dependencies.failed', {
+            worker: function(job, a) {
+                job.options.retries = 2;
 
-                hive.bee('test.dependencies.2', {
-                    worker: function (job, a) {
-                        return a;
-                    }
-                })
+                throw {
+                    message: 'Bad job',
+                    retryDelay: 1000
+                }
 
-                hive.bee('test.dependencies.failed', {
-                    worker: function (job, a) {
-                        job.options.retries = 2;
+                return a;
+            }
+        })
 
-                        throw {
-                            message: 'Bad job',
-                            retryDelay: 1000
-                        }
-
-                        return a;
-                    }
-                })
-
-                // worker for job.ttl test with disabled hash function
-                hive.bee('test.dependencies.ttl', {
-                    worker: function (job, a) {
-                        job.options.ttl = 2000; // 2 sec
-                        return a;
-                    }
-                })
-
-            })
+        // worker for job.ttl test with disabled hash function
+        hive.bee('test.dependencies.ttl', {
+            worker: function(job, a) {
+                job.options.ttl = 2000; // 2 sec
+                return a;
+            }
+        })
     })
 
     describe('Depend on a single job #slow', function () {

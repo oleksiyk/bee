@@ -1,83 +1,77 @@
+"use strict";
+
+/* global describe, it, before, hivelib, sinon */
+
 var Q = require('q');
 var _ = require('lodash')
 
 describe('Job cancel', function () {
 
-    var hive, spyDelayed, spyRunningSuccessful, spyRunningFailed, spyWorkflowParent, spyWorkflowChild;
+    var hive = hivelib.createHive(), spyDelayed, spyRunningSuccessful, spyRunningFailed, spyWorkflowParent, spyWorkflowChild;
 
     before(function () {
 
-        return hivelib.createHivePromised()
-            .then(function (res) {
+        hive.on('error', function(err) {
+            global.hiveError = err;
+        })
 
-                hive = res;
+        spyDelayed = sinon.spy(function(job, a) {
+            return a;
+        })
 
-                hive
-                    .on('log', function (message) {
-                        if (message.level == 'error') {
-                            global.hiveError = message.message;
-                        }
-                    })
+        hive.bee('test.cancel.delayed', {
+            worker: spyDelayed
+        })
 
-                spyDelayed = sinon.spy(function (job, a) {
-                    return a;
-                })
+        spyRunningSuccessful = sinon.spy(function(job, a) {
+            return Q.delay(2000).thenResolve(a)
+        })
 
-                hive.bee('test.cancel.delayed', {
-                    worker: spyDelayed
-                })
+        hive.bee('test.cancel.running.successful', {
+            worker: spyRunningSuccessful
+        })
 
-                spyRunningSuccessful = sinon.spy(function (job, a) {
-                    return Q.delay(2000).thenResolve(a)
-                })
+        spyRunningFailed = sinon.spy(function(job, a) {
+            return Q.delay(2000).thenReject(new Error('Failed!!'))
+        })
 
-                hive.bee('test.cancel.running.successful', {
-                    worker: spyRunningSuccessful
-                })
+        hive.bee('test.cancel.running.failed', {
+            worker: spyRunningFailed
+        })
 
-                spyRunningFailed = sinon.spy(function (job, a) {
-                    return Q.delay(2000).thenReject(new Error('Failed!!'))
-                })
+        hive.bee('test.cancel.finished.successful', {
+            worker: function(job, a) {
+                return a
+            }
+        })
 
-                hive.bee('test.cancel.running.failed', {
-                    worker: spyRunningFailed
-                })
+        hive.bee('test.cancel.finished.failed', {
+            worker: function(job, a) {
+                throw {
+                    message: 'Failed123!',
+                    retry: false
+                }
+            }
+        })
 
-                hive.bee('test.cancel.finished.successful', {
-                    worker: function (job, a) {
-                        return a
-                    }
-                })
+        spyWorkflowParent = sinon.spy(function(job, a, random) {
+            job.options.retryDelay = 3000;
+            return job.sub({
+                name: 'test.cancel.workflow.child'
+            }, a, random).post('result')
+        })
 
-                hive.bee('test.cancel.finished.failed', {
-                    worker: function (job, a) {
-                        throw {
-                            message: 'Failed123!',
-                            retry: false
-                        }
-                    }
-                })
+        spyWorkflowChild = sinon.spy(function(job, a) {
+            return Q.delay(2000).thenResolve(a)
+        })
 
-                spyWorkflowParent = sinon.spy(function (job, a, random) {
-                    job.options.retryDelay = 3000;
-                    return job.sub({
-                        name: 'test.cancel.workflow.child'
-                    }, a, random).post('result')
-                })
+        hive.bee('test.cancel.workflow.single', {
+            worker: spyWorkflowParent
+        })
 
-                spyWorkflowChild = sinon.spy(function (job, a) {
-                    return Q.delay(2000).thenResolve(a)
-                })
-
-                hive.bee('test.cancel.workflow.single', {
-                    worker: spyWorkflowParent
-                })
-
-                hive.bee('test.cancel.workflow.child', {
-                    worker: spyWorkflowChild
-                })
-
-            })
+        hive.bee('test.cancel.workflow.child', {
+            worker: spyWorkflowChild
+        })
     })
 
     describe('delayed job', function () {
@@ -228,11 +222,11 @@ describe('Job cancel', function () {
         })
 
         it('job2 is duplicate of job', function () {
-            return job2.duplicate_jid.should.be.equal(job.jid)
+            return job2.duplicateJid.should.be.equal(job.jid)
         })
 
         it('job3 is not duplicate', function () {
-            return should.not.exist(job3.duplicate_jid)
+            return should.not.exist(job3.duplicateJid)
         })
 
         it('hive.job(job.jid) is rejected with "Canceled"', function () {
@@ -290,11 +284,11 @@ describe('Job cancel', function () {
         })
 
         it('job2 is duplicate of job', function () {
-            return job2.duplicate_jid.should.be.equal(job.jid)
+            return job2.duplicateJid.should.be.equal(job.jid)
         })
 
         it('job3 is not duplicate', function () {
-            return should.not.exist(job3.duplicate_jid)
+            return should.not.exist(job3.duplicateJid)
         })
 
         it('hive.job(job.jid) is rejected with "Canceled"', function () {
