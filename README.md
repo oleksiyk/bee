@@ -1,7 +1,7 @@
 # Bee
 Bee is a job queue for [Node](http://nodejs.org) built on top of  [Redis](http://redis.io) and its powerful Lua scripting possibilities.
 
-Bee doesn't have a central server or dedicated workers (but you may have them if you need) instead it allows you to easily split workers and clients between multiple node instances or parts of your application.
+Bee doesn't have a central server and separately running workers as many other job servers (but you may have them if you need) instead it allows you to easily split workers and clients between multiple node instances or parts of your application. A single node instance may run a several workers and clients at the same moment. If you need to scale your application - just launch another instance of the same worker(s).
 
 The core part of Bee is Hive. When you need to submit job you first create a hive with
 
