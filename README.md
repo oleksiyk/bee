@@ -43,7 +43,7 @@ Beta
 
 ## Usage
 
-### Hive creation
+### Create a hive
 
 `.createHive(options)`
 
@@ -54,76 +54,7 @@ var hive = require('bee').createHive();
 var job = hive.do('Image.Resize', …)
 ```
 
-### Hive object
-* `.id`
-
-```javascript
-/**
- * @type {String}
- *
- * Unique ID of this hive object, consists of hostname,
- * process.pid and some unique string, example:
- * `Oleksiys-MacBook-Pro.local:42785:c16b0010-08fd-11e3-8a91-ed3255a3c666`
-*/
-```
-
-* `.do()`
-
-```javascript
-/**
- * Submit new job
- *
- * @param {String|Object} name Bee name or job options object
- * @param {...Mixed} workload
- * @returns {Promise} Promise for Job instance
- */
-```
-
-* `.job()`
-
-```javascript
-/**
- * Get Job handle instance by JID
- *
- * @param {String} jid
- * @returns {Promise} Promise for Job instance
- */
-```
-* `.cancel()`
-
-```javascript
-	/**
- * Cancel the job
- *
- * @param {Job|String} Job handle or JID
- * @return {Promise}
- */
-```
-
-* `.search()`
-
-```javascript
-/**
- * Search for jobs by tag(s)
- *
- * @param {...String|Array} tags
- * @returns {Promise} Promise for array of JIDs
- */
-```
-
-* `.bee()`
-
-```javascript
-/**
- * Creates and registers new Bee
- *
- * @param {String} name Bee name
- * @param {Object} beeSpec
- * @returns {Bee} Bee
- */
-```
-
-### Bees (workers)
+### Setup Bees (workers)
 Bees are created with `hive.bee()` method:
 
 ```javascript
@@ -489,6 +420,76 @@ hive.search('tag1', 'tag2').then(function(arrayOfJIDs){
 hive.search(['tag1', 'tag2']).then(function(arrayOfJIDs){
 	// …
 });
+```
+
+### Hive object
+* `hive.id`
+
+```javascript
+/**
+ * @type {String}
+ *
+ * Unique ID of this hive object, consists of hostname,
+ * process.pid and some unique string, example:
+ * `Oleksiys-MacBook-Pro.local:42785:c16b0010-08fd-11e3-8a91-ed3255a3c666`
+*/
+```
+
+* `hive.do()`
+
+```javascript
+/**
+ * Submit new job
+ *
+ * @param {String|Object} name Bee name or job options object
+ * @param {...Mixed} workload
+ * @returns {Promise} Promise for Job instance
+ */
+```
+
+* `hive.job()`
+
+```javascript
+/**
+ * Get Job handle instance by JID
+ *
+ * @param {String} jid
+ * @returns {Promise} Promise for Job instance
+ */
+```
+
+* `hive.cancel()`
+
+```javascript
+	/**
+ * Cancel the job
+ *
+ * @param {Job|String} Job handle or JID
+ * @return {Promise}
+ */
+```
+
+* `hive.search()`
+
+```javascript
+/**
+ * Search for jobs by tag(s)
+ *
+ * @param {...String|Array} tags
+ * @returns {Promise} Promise for array of JIDs
+ */
+```
+
+* `hive.bee()`
+
+```javascript
+/**
+ * Creates and registers new Bee
+ *
+ * @param {String} name Bee name
+ * @param {Object} beeSpec
+ * @returns {Bee} Bee
+ */
 ```
 
 ## Authors

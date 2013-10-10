@@ -290,7 +290,7 @@ describe('Job dependencies', function () {
                 dependencies: [job.jid]
             }, 7, random)
                 .post('result').then(function () {
-                    return start.should.be.closeTo(Date.now(), 10)
+                    return start.should.be.closeTo(Date.now(), 20)
                 })
         })
 
