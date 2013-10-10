@@ -435,7 +435,7 @@ hive.search(['tag1', 'tag2']).then(function(arrayOfJIDs){
 */
 ```
 
-* `hive.do()`
+* `hive.do(name, workload)`
 
 ```javascript
 /**
@@ -447,7 +447,7 @@ hive.search(['tag1', 'tag2']).then(function(arrayOfJIDs){
  */
 ```
 
-* `hive.job()`
+* `hive.job(jid)`
 
 ```javascript
 /**
@@ -458,7 +458,7 @@ hive.search(['tag1', 'tag2']).then(function(arrayOfJIDs){
  */
 ```
 
-* `hive.cancel()`
+* `hive.cancel(job)`
 
 ```javascript
 	/**
@@ -469,7 +469,7 @@ hive.search(['tag1', 'tag2']).then(function(arrayOfJIDs){
  */
 ```
 
-* `hive.search()`
+* `hive.search(tags)`
 
 ```javascript
 /**
@@ -480,7 +480,7 @@ hive.search(['tag1', 'tag2']).then(function(arrayOfJIDs){
  */
 ```
 
-* `hive.bee()`
+* `hive.bee(name, spec)`
 
 ```javascript
 /**
