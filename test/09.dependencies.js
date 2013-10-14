@@ -419,5 +419,43 @@ describe('Job dependencies', function () {
 
     })
 
+    describe.only('hive.doTagsDependant #slow', function() {
+        var job, random = Math.random(), tags = [
+            'dependencies.tags.1',
+            'dependencies.tags.2',
+        ]
+
+        before(function () {
+
+            return hive.doTagsDependant({
+                name: 'test.dependencies.1',
+                tags: tags,
+                delay: 2000
+            }, 7, random)
+                .then(function (_job) {
+                    job = _job;
+                })
+        })
+
+        it('should execute new job after dependencies matching tags are satisfied ~2sec', function() {
+            var start = Date.now()
+
+            this.timeout(3000)
+
+            return hive.doTagsDependant({
+                name: 'test.dependencies.2',
+                tags: tags
+            }, 8, random)
+                .post('result')
+                .then(function (result) {
+                    return Q.all([
+                        start.should.be.closeTo(Date.now(), 2500),
+                        result.should.be.equal(8)
+                    ])
+                })
+        })
+
+    })
+
 
 })
