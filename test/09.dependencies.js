@@ -449,7 +449,7 @@ describe('Job dependencies', function () {
                 .post('result')
                 .then(function (result) {
                     return Q.all([
-                        start.should.be.closeTo(Date.now(), 2500),
+                        (Date.now() - start).should.be.gte(2000),
                         result.should.be.equal(8)
                     ])
                 })

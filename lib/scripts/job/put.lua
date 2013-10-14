@@ -16,12 +16,25 @@ if 0 ~= redis.call('exists', 'bee:h:jobs:' .. job.jid) then
     error('Job ' .. job.jid .. ' already exists')
 end
 
+-- add jobs listed as tag dependencies
+if job.options.dependenciesOnTags then
+    local tagKeys = {}
+
+    for i, tag in ipairs(job.tags) do
+        table.insert(tagKeys, 'bee:s:tags:' .. tag)
+    end
+
+    for i, tagDepJid in ipairs(redis.call('sinter', unpack(tagKeys))) do
+        addDependantJob(tagDepJid, job.jid)
+    end
+end
+
+-- add other job dependencies
 if #job.options.dependencies then
     for i, depJid in ipairs(job.options.dependencies) do
         addDependantJob(depJid, job.jid)
     end
 end
-
 
 if job.parent then
 
