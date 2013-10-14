@@ -25,6 +25,15 @@ hive.bee('Images.Resize', {
 })
 ```
 
+or with a basic form:
+
+```javascript
+hive.bee('Images.Resize', function(job, imagePath, width, height){
+	// - resize the image
+})
+```
+
+
 Internally bee works with [Q](https://github.com/kriskowal/q/) promises which makes it easy to construct complex job workflows and handle possible errors.
 
 ### Status
@@ -60,8 +69,8 @@ Bees are created with `hive.bee()` method:
 ```javascript
 /**
 *
-* @param {string} name
-* @param {object} beeSpec
+* @param {String} name
+* @param {Object|Function} beeSpec
 */
 hive.bee('Image.Resize', {
 	worker: function(job, imagePath, width, height) {
