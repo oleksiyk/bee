@@ -419,7 +419,7 @@ describe('Job dependencies', function () {
 
     })
 
-    describe.only('hive.doTagsDependant #slow', function() {
+    describe('hive.doTagsDependant #slow', function() {
         var job, random = Math.random(), tags = [
             'dependencies.tags.1',
             'dependencies.tags.2',
