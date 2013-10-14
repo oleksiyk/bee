@@ -283,8 +283,9 @@ hive.do({
 	name: 'test.dependencies',
 	dependencies: [otherJob1.jid, otherJob2.jid] // wait for these two jobs before starting
 }, 'workload').post('result').then...
-
 ```
+
+See also [`hive.doTagsDependant`](#hive.doTagsDependant)
 
 
 <a name="history"></a>
@@ -422,6 +423,16 @@ hive.search(['tag1', 'tag2']).then(function(arrayOfJIDs){
 });
 ```
 
+<a name="hive.doTagsDependant"></a>
+You can also submit a job which will [depend](#dependencies) on other jobs with the same tags:
+
+```javascript
+hive.doTagsDependant({
+	name: 'Image.Resize',
+	tags: ['tag1', 'tag2']
+  }, '/tmp/image.jpg');
+```
+
 ### Hive object
 * `hive.id`
 
@@ -445,6 +456,18 @@ hive.search(['tag1', 'tag2']).then(function(arrayOfJIDs){
  * @param {...Mixed} workload
  * @returns {Promise} Promise for Job instance
  */
+```
+
+* `hive.doTagsDependant(spec, workload)`
+
+```javascript
+/**
+ * Submit a new job which depends on other jobs found by specified tags in job spec
+
+ * @param  {Object} opts Job spec
+ * @return {Promise}
+ */
+
 ```
 
 * `hive.job(jid)`
