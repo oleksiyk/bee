@@ -148,7 +148,7 @@ describe('Job dependencies', function () {
                 dependencies: [job.jid, job2.jid]
             }, 7, random)
                 .post('result').then(function () {
-                    return (Date.now()-start).should.be.gte(3000)
+                    return (Date.now()-start).should.be.gte(2900)
                 })
         })
 
