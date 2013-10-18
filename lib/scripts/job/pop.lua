@@ -49,8 +49,8 @@ for index, jid in ipairs(redis.call('zrangebyscore', key_queue, '-inf', '+inf', 
 
     table.insert(response, cjson.encode(getJob(jid)))
 
-    -- add job to sorted set of job locks (score is time to expire - heartbeat is 30 seconds so lets wait 2*30 seconds)
-    redis.call('zadd', key_locks, (NOW + 1000*60), jid)
+    -- add job to sorted set of job locks (score is time to expire - heartbeat is 30 seconds so lets wait 45 seconds)
+    redis.call('zadd', key_locks, (NOW + 45*1000), jid)
 
     -- add job to set of jobs running on this bee (worker)
     redis.call('sadd', 'bee:s:locks:' .. args.worker, jid)

@@ -29,11 +29,21 @@ for index, jid in ipairs(redis.call('zrangebyscore', key_locks, 0, NOW)) do
 
     local old_worker = redis.call('hget', 'bee:h:jobs:' .. jid, 'worker')
 
+    local attempt = tonumber(redis.call('incr', 'bee:str:lock-waits:' .. old_worker .. ':' .. jid) or 1)
+
+    hivelog({
+        event = 'Expired job lock detected',
+        attempt = attempt,
+        jid   = jid,
+        queue = args.queue,
+        worker = old_worker
+    })
+
     -- give worker 3 attempts to remind about itself
-    if tonumber(redis.call('incr', 'bee:str:lock-waits:' .. old_worker .. ':' .. jid) or 0) > 3 then
+    if attempt > 3 then
 
         hivelog({
-            event = 'Expired Job lock',
+            event = 'Job lock expired - no more attempts for worker',
             jid   = jid,
             queue = args.queue,
             old_worker = old_worker
@@ -59,8 +69,9 @@ for index, jid in ipairs(redis.call('zrangebyscore', key_locks, 0, NOW)) do
         end
     else
         -- increment job lock timeout (score)
-        -- this will give worker 30 seconds for each of 3 attempts to notify about itself
-        redis.call('zincrby', key_locks, 30*1000, jid)
+        -- this will give worker 45 seconds for each of 3 attempts to notify about itself
+        -- redis.call('zincrby', key_locks, 30*1000, jid)
+        redis.call('zadd', key_locks, (NOW + 45*1000), jid)
     end
 
 end

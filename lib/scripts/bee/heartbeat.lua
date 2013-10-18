@@ -22,7 +22,8 @@ redis.call('zadd', key_bees, NOW, args.worker)
 
 -- update score (expiration time) for all jobs for this bee
 for ind, jid in ipairs(redis.call('smembers', 'bee:s:locks:' .. args.worker)) do
-    redis.call('zincrby', key_locks, 30*1000, jid)
+    -- redis.call('zincrby', key_locks, 30*1000, jid)
+    redis.call('zadd', key_locks, (NOW + 45*1000), jid)
 
     -- remove lock-wait key (used to detect dead workers)
     redis.call('del', 'bee:str:lock-waits:' .. args.worker .. ':' .. jid)
