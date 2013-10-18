@@ -22,5 +22,13 @@ global.chai.use(chaiAsPromised);
 var sinonChai = require("sinon-chai");
 global.chai.use(sinonChai);
 
-global.hiveError = null;
+global.hive = global.hivelib.createHive({
+    redis: {
+        log: true
+    }
+})
+
+global.hive.on('error', function(err) {
+    console.error(require('util').inspect(err, true, 10, true))
+})
 

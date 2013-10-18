@@ -1,18 +1,14 @@
 "use strict";
 
-/* global describe, it, before, hivelib, sinon */
+/* global describe, it, before, hive, sinon */
 
 var Q = require('q');
 
 describe('Job tags', function () {
 
-    var hive = hivelib.createHive(), spyCLientTags;
+    var spyCLientTags;
 
     before(function () {
-
-        hive.on('error', function(err) {
-            global.hiveError = err;
-        })
 
         hive.bee('test.tags.1', {
             worker: function(job, tags) {

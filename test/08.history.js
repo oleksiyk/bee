@@ -1,19 +1,13 @@
 "use strict";
 
-/* global describe, it, before, hivelib */
+/* global describe, it, before, hive */
 
 // var Q = require('q');
 var _ = require('lodash')
 
 describe('Job history', function () {
 
-    var hive = hivelib.createHive();
-
     before(function () {
-
-        hive.on('error', function(err) {
-            global.hiveError = err;
-        })
 
         hive.bee('test.history.1', {
             worker: function(job, a) {

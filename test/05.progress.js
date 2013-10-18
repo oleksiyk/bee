@@ -1,18 +1,12 @@
 "use strict";
 
-/* global describe, it, before, hivelib, sinon */
+/* global describe, it, before, sinon, hive */
 
 var Q = require('q');
 
 describe('Progress notifications', function () {
 
-    var hive = hivelib.createHive();
-
     before(function () {
-
-        hive.on('error', function(err) {
-            global.hiveError = err;
-        })
 
         // will send progress notifications each 100ms until resolved
         hive.bee('test.progress.1', {

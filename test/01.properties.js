@@ -5,11 +5,11 @@ var crypto = require('crypto')
 
 var Q = require('q')
 
-/* global describe, it, before, hivelib, sinon */
+/* global describe, it, before, sinon, hive, hivelib */
 
 describe('Objects, methods and properties', function () {
 
-    var bee, workerSpy, hashSpy, job, job2, job2Options, hive, hivePromise, submitted, queueName = 'test.hive.1', random = Math.random();
+    var bee, workerSpy, hashSpy, job, job2, job2Options, submitted, queueName = 'test.hive.1', random = Math.random();
 
     job2Options = {
         name: queueName,
@@ -32,8 +32,6 @@ describe('Objects, methods and properties', function () {
             })
 
             it('should return Hive object', function () {
-                hive = hivelib.createHive();
-
                 hive.should.be.a('object').and.have.property('id')
             })
         })
@@ -44,10 +42,6 @@ describe('Objects, methods and properties', function () {
         var jobPromise;
 
         before(function () {
-
-            hive.on('error', function(err) {
-                global.hiveError = err;
-            })
 
             // create a spy for worker function
             workerSpy = sinon.spy(function (job, a) {

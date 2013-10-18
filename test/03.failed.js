@@ -1,17 +1,13 @@
 "use strict";
 
-/* global describe, it, before, hivelib, sinon */
+/* global describe, it, before, hivelib, sinon, hive */
 
 var Q = require('q')
 
 describe('Failed jobs', function () {
-    var hive = hivelib.createHive(), failedSpyThrow, failedSpyHashThrowHash, failedSpyHashThrowWorker;
+    var failedSpyThrow, failedSpyHashThrowHash, failedSpyHashThrowWorker;
 
     before(function() {
-
-        hive.on('error', function(err) {
-            global.hiveError = err;
-        })
 
         // this worker will permanently reject any negative number
         hive.bee('test.failed.sqrt', {

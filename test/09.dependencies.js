@@ -1,19 +1,13 @@
 "use strict";
 
-/* global describe, it, before, hivelib */
+/* global describe, it, before, hive */
 
 var Q = require('q');
 var _ = require('lodash')
 
 describe('Job dependencies', function () {
 
-    var hive = hivelib.createHive();
-
     before(function () {
-
-        hive.on('error', function(err) {
-            global.hiveError = err;
-        })
 
         hive.bee('test.dependencies', {
             worker: function(job, a) {
@@ -103,13 +97,13 @@ describe('Job dependencies', function () {
                 dependencies: [job.jid]
             }, 7, random)
                 .post('result').then(function () {
-                    return start.should.be.closeTo(Date.now(), 10)
+                    return start.should.be.closeTo(Date.now(), 50)
                 })
         })
 
     })
 
-    describe('Depend on a multiple jobs #slow', function () {
+    describe('Depend on multiple jobs #slow', function () {
 
         var job, job2, random = Math.random();
 
@@ -139,7 +133,7 @@ describe('Job dependencies', function () {
 
         it('should execute after dependencies satisfied (>3secs)', function () {
 
-            this.timeout(4000)
+            this.timeout(5000)
 
             var start = Date.now()
 
@@ -161,7 +155,7 @@ describe('Job dependencies', function () {
                 dependencies: [job.jid, job2.jid]
             }, 7, random)
                 .post('result').then(function () {
-                    return start.should.be.closeTo(Date.now(), 10)
+                    return start.should.be.closeTo(Date.now(), 50)
                 })
         })
 
@@ -194,7 +188,7 @@ describe('Job dependencies', function () {
 
         it('should execute after dependencies satisfied (>3.5secs)', function () {
 
-            this.timeout(4500)
+            this.timeout(6000)
 
             var start = Date.now()
 
@@ -237,7 +231,7 @@ describe('Job dependencies', function () {
 
         it('should execute after dependencies satisfied (>2secs)', function () {
 
-            this.timeout(3500)
+            this.timeout(5000)
 
             var start = Date.now()
 
@@ -259,7 +253,7 @@ describe('Job dependencies', function () {
                 dependencies: [job.jid, job2.jid]
             }, 7, random)
                 .post('result').then(function () {
-                    return start.should.be.closeTo(Date.now(), 10)
+                    return start.should.be.closeTo(Date.now(), 50)
                 })
         })
 
@@ -290,7 +284,7 @@ describe('Job dependencies', function () {
                 dependencies: [job.jid]
             }, 7, random)
                 .post('result').then(function () {
-                    return start.should.be.closeTo(Date.now(), 20)
+                    return start.should.be.closeTo(Date.now(), 50)
                 })
         })
 
@@ -323,7 +317,7 @@ describe('Job dependencies', function () {
                     job.cancel();
                     return _job.result()
                         .then(function () {
-                            return start.should.be.closeTo(Date.now(), 10)
+                            return start.should.be.closeTo(Date.now(), 50)
                         })
                 })
 
@@ -348,7 +342,7 @@ describe('Job dependencies', function () {
 
         it('should not execute canceled dependant job', function () {
 
-            this.timeout(4000)
+            this.timeout(5000)
 
             return hive.do({
                 name: 'test.dependencies',
@@ -389,7 +383,7 @@ describe('Job dependencies', function () {
 
         it('should execute immediately (after dep expired, ~2.5sec)', function () {
 
-            this.timeout(4000)
+            this.timeout(5000)
 
             var start;
 
@@ -405,7 +399,7 @@ describe('Job dependencies', function () {
                         depJob = _job;
                         return _job.result()
                             .then(function () {
-                                return start.should.be.closeTo(Date.now(), 10)
+                                return start.should.be.closeTo(Date.now(), 50)
                             })
                     })
             })
@@ -440,7 +434,7 @@ describe('Job dependencies', function () {
         it('should execute new job after dependencies matching tags are satisfied ~2sec', function() {
             var start = Date.now()
 
-            this.timeout(3000)
+            this.timeout(5000)
 
             return hive.doTagsDependant({
                 name: 'test.dependencies.2',
