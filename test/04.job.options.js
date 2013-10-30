@@ -1,17 +1,13 @@
 "use strict";
 
-/* global describe, it, before, hivelib, sinon */
+/* global describe, it, before, sinon, hive */
 
 var Q = require('q')
 
 describe('Job options', function () {
-    var hive = hivelib.createHive(), ttlSpy, retryDelaySpy, progressiveDelaySpy;
+    var ttlSpy, retryDelaySpy, progressiveDelaySpy;
 
     before(function () {
-
-        hive.on('error', function(err) {
-            global.hiveError = err;
-        })
 
         // worker for job.delay test
         hive.bee('test.job.options.delay', {
@@ -44,7 +40,7 @@ describe('Job options', function () {
         retryDelaySpy = sinon.spy(function(job) {
 
             job.options.retries = 2;
-            job.options.retryDelay = 3 * 1000; // 3 seconds
+            job.options.retryDelay = 3000; // 3 seconds
 
             // fail any job
             throw 'Bad job'
@@ -58,7 +54,7 @@ describe('Job options', function () {
         progressiveDelaySpy = sinon.spy(function(job) {
 
             job.options.retries = 2;
-            job.options.retryDelay = 3 * 1000; // 3 seconds
+            job.options.retryDelay = 3000; // 3 seconds
 
             // fail any job
             throw {
@@ -92,7 +88,7 @@ describe('Job options', function () {
 
                     result.should.equal(5);
 
-                    return (end - start).should.be.at.least(3000).and.be.at.most(4000)
+                    return (end - start).should.be.at.least(3000).and.be.at.most(5000)
                 })
         })
 
@@ -142,7 +138,7 @@ describe('Job options', function () {
             })
 
             it('and should be expired after ~3 sec', function () {
-                this.timeout(4000);
+                this.timeout(5000);
 
                 return Q.delay(3000).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Expired')
@@ -159,7 +155,7 @@ describe('Job options', function () {
             })
 
             it('job should be deleted completely after another ~3 sec', function () {
-                this.timeout(4000);
+                this.timeout(5000);
 
                 return Q.delay(3000).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Not found')
@@ -185,7 +181,7 @@ describe('Job options', function () {
             })
 
             it('and should be expired after ~3 sec', function () {
-                this.timeout(4000);
+                this.timeout(5000);
 
                 return Q.delay(3000).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Expired')
@@ -193,7 +189,7 @@ describe('Job options', function () {
             })
 
             it('job should be deleted completely after another ~3 sec', function () {
-                this.timeout(4000);
+                this.timeout(5000);
 
                 return Q.delay(3000).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Not found')
@@ -217,11 +213,11 @@ describe('Job options', function () {
 
         it('should be rejected in about 6 seconds', function () {
 
-            this.timeout(7 * 1000);
+            this.timeout(10000);
 
             return job.result()
                 .fail(function () {
-                    (Date.now() - start).should.be.closeTo(6 * 1000, 1000)
+                    (Date.now() - start).should.be.closeTo(6000, 1000)
                 })
         })
 
@@ -255,11 +251,11 @@ describe('Job options', function () {
 
         it('should be rejected in about 9 seconds', function () {
 
-            this.timeout(10 * 1000);
+            this.timeout(15000);
 
             return job.result()
                 .fail(function () {
-                    (Date.now() - start).should.be.closeTo(9 * 1000, 1000)
+                    (Date.now() - start).should.be.closeTo(9000, 1000)
                 })
         })
 

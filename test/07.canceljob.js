@@ -1,19 +1,15 @@
 "use strict";
 
-/* global describe, it, before, hivelib, sinon */
+/* global describe, it, before, hive, sinon */
 
 var Q = require('q');
 var _ = require('lodash')
 
 describe('Job cancel', function () {
 
-    var hive = hivelib.createHive(), spyDelayed, spyRunningSuccessful, spyRunningFailed, spyWorkflowParent, spyWorkflowChild;
+    var spyDelayed, spyRunningSuccessful, spyRunningFailed, spyWorkflowParent, spyWorkflowChild;
 
     before(function () {
-
-        hive.on('error', function(err) {
-            global.hiveError = err;
-        })
 
         spyDelayed = sinon.spy(function(job, a) {
             return a;

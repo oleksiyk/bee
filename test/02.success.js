@@ -1,9 +1,9 @@
 "use strict";
 
-/* global describe, it, before, hivelib, sinon */
+/* global describe, it, before, sinon, hive */
 
 describe('Successful job and duplicate', function () {
-    var hive = hivelib.createHive(), spy, job, random = Math.random(); // use random number for repeated tests
+    var spy, job, random = Math.random(); // use random number for repeated tests
 
     before(function() {
 
@@ -14,10 +14,6 @@ describe('Successful job and duplicate', function () {
 
         hive.bee('test.basic.sum', {
             worker: spy
-        })
-
-        hive.on('error', function(err) {
-            global.hiveError = err;
         })
     })
 
