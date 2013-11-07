@@ -48,6 +48,7 @@ redis.call('zadd', 'bee:ss:expires:' .. args.queue, NOW + args.options.ttl, args
 
 -- send completed event
 redis.call('publish', 'bee:ch:q:' .. args.queue, cjson.encode({
+    queue = args.queue,
     jid = args.jid,
     type = 'completed',
     job = getJob(args.jid)

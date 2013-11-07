@@ -21,8 +21,18 @@ addToWorkingQueue = function (jid)
 
     addToHistory(jid, 'queued')
 
+    if options.preferredHostname then
+        -- notify preferred hostname first
+        redis.call('publish', 'bee:ch:host:' .. tostring(options.preferredHostname), cjson.encode({
+            queue = queue,
+            jid = jid,
+            type = 'new'
+        }))
+    end
+
     -- Publish put event
     redis.call('publish', 'bee:ch:q:' .. queue, cjson.encode({
+        queue = queue,
         jid = jid,
         type = 'new'
     }))

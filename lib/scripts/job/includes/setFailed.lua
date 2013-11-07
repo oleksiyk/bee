@@ -31,6 +31,7 @@ setFailed = function(jid, message)
 
     -- send failed event
     redis.call('publish', 'bee:ch:q:' .. queue, cjson.encode({
+        queue = queue,
         jid = jid,
         type = 'failed',
         job = getJob(jid)
