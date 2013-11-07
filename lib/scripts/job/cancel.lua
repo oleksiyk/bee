@@ -47,6 +47,7 @@ cancelJob = function(jid)
 
         -- send canceled event
         redis.call('publish', 'bee:ch:q:' .. queue, cjson.encode({
+            queue = queue,
             jid = jid,
             type = 'canceled',
             job = getJob(jid)

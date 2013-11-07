@@ -54,6 +54,7 @@ if duplicateJid then
 
     -- send duplicate notification
     redis.call('publish', 'bee:ch:q:' .. args.queue, cjson.encode({
+        queue = args.queue,
         jid = args.jid,
         type = 'duplicate',
         job = getJob(args.jid)
