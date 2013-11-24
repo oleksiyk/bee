@@ -31,6 +31,9 @@ for index, jid in ipairs(redis.call('zrangebyscore', key_locks, 0, NOW)) do
 
     local attempt = tonumber(redis.call('incr', 'bee:str:lock-waits:' .. old_worker .. ':' .. jid) or 1)
 
+    -- set (update) expiration time on lock-waits key for 24 hrs
+    redis.call('expire', 'bee:str:lock-waits:' .. old_worker .. ':' .. jid, 24 * 3600)
+
     hivelog({
         event = 'Expired job lock detected',
         attempt = attempt,
