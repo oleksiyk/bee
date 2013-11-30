@@ -85,16 +85,18 @@ Worker function is expected to return a promise (or the value) or throw an excep
 The minimal configuration for `beeSpec` object is a `worker` function, but there are other properties you can customise:
 
 * `hash` function:
-	```javascript
-	hash: null // null, false or function
-	```
+
+```javascript
+hash: null // null, false or function
+```
 The hash function is used to detect duplicates and avoid doing the same job many times (you can control how long your completed job stays valid with `job.options.ttl` property). There is a default hash function which computes the SHA1 hash of all job workload parameters (imagePath + width + height in this example).
 Hash function is expected to return a promise or the value (or throw an exception).
 Set `hash` to `null` to use default hash function, set it to `false` to disable duplicates detection or set it to function (which accepts exactly the same parameters as `worker`) to compute hash yourself.
 * `concurrency` - concurrency limit, sets the maximum number of jobs this worker can accept and process at once (asynchronously of course):
-	```javascript
-	concurrency: false // false or number
-	```
+
+```javascript
+concurrency: false // false or number
+```
 Setting concurrency to `false` (default value) will disable the limit, however the Bee will still internally balance it between all workers for this queue (those with the same `name`)
 * `timeout` is a maximum time in ms the worker can do the job. This is needed to avoid memory leaks because of unintentionally unfulfilled deferred promises. The default is 1,800,000 (30 minutes). Update this value if your job can take longer time.
 
