@@ -238,7 +238,7 @@ Can be set on worker only. If set to `true` will increase job retryDelay with ea
 * `job.options.ttl=1800000`
 Can be set on worker only.
 Controls how long (in ms) your completed (or failed) job is considered as valid thus all duplicate jobs sent during this period will return with this job's result (or fail with job's final exception). The default value is 1800000 (30 mins).
-Please note that the value you set for TTL is not a high precision exact amount in milliseconds that the job will stay valid. The job will be marked as expired the next time one of the workers comes to check for new jobs to Redis. And this can happen after up to 500ms. One other thing to consider is a requirement to set time synchronisation between all the servers running your workers. This is due to a inability to get current timestamp in Redis Lua scripts, so Redis works with timestamps passed with each request.
+Please note that the value you set for TTL is not a high precision exact amount in milliseconds that the job will stay valid. The job will be marked as expired the next time one of the workers comes to check for new jobs to Redis. And this can happen after up to 500ms.
 * `job.options.preferredHostname=false`
 Set the preferred hostname (`require('os').hostname()`) for this job execution. Bee will notify all hives running on that hostname first thus increasing their chances to grab the job before others.
 
