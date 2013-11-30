@@ -38,7 +38,7 @@ describe('Successful job and duplicate', function () {
 
         it('sent JID is the same as received JID', function () {
             return job.result()
-                .thenResolve(spy.getCall(0).args[0].jid.should.equal(job.jid))
+                .return(spy.getCall(0).args[0].jid.should.equal(job.jid))
         })
 
     })
@@ -53,7 +53,7 @@ describe('Successful job and duplicate', function () {
 
         it('worker wasn\'t called the second time', function () {
             return job.result()
-                .thenResolve(spy.should.be.calledOnce)
+                .return(spy.should.be.calledOnce)
         })
 
         it('result is 5', function () {

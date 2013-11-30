@@ -2,7 +2,7 @@
 
 /* global describe, it, before, sinon, hive */
 
-var Q = require('q');
+var Promise = require('bluebird');
 
 describe('Progress notifications', function () {
 
@@ -11,14 +11,14 @@ describe('Progress notifications', function () {
         // will send progress notifications each 100ms until resolved
         hive.bee('test.progress.1', {
             worker: function(job, a) {
-                var deferred = Q.defer();
+                var deferred = Promise.defer();
                 var progress = 0;
 
                 var f = function() {
 
                     progress += 10;
 
-                    deferred.notify(progress);
+                    deferred.progress(progress);
 
                     if (progress == 100) {
                         deferred.resolve(a)
@@ -37,8 +37,8 @@ describe('Progress notifications', function () {
         hive.bee('test.progress.2', {
             worker: function(job, a) {
 
-                return hive.do('test.progress.1', a, Math.random()).post('result')
-                    .thenResolve(a + a);
+                return hive.do('test.progress.1', a, Math.random()).call('result')
+                    .return(a + a);
 
             }
         })
@@ -47,11 +47,11 @@ describe('Progress notifications', function () {
         hive.bee('test.progress.3', {
             worker: function(job, a) {
 
-                return hive.do('test.progress.2', a, Math.random()).post('result')
-                    .progress(function(progress) {
+                return hive.do('test.progress.2', a, Math.random()).call('result')
+                    .progressed(function(progress) {
                         return progress + 1;
                     })
-                    .thenResolve(a + a);
+                    .return(a + a);
 
             }
         })
@@ -64,7 +64,7 @@ describe('Progress notifications', function () {
         });
 
         before(function () {
-            result = hive.do('test.progress.1', 123, Math.random()).post('result').progress(progressSpy)
+            result = hive.do('test.progress.1', 123, Math.random()).call('result').progressed(progressSpy)
 
             return result;
         })
@@ -89,7 +89,7 @@ describe('Progress notifications', function () {
         });
 
         before(function () {
-            result = hive.do('test.progress.2', 123, Math.random()).post('result').progress(progressSpy)
+            result = hive.do('test.progress.2', 123, Math.random()).call('result').progressed(progressSpy)
 
             return result;
         })
@@ -114,7 +114,7 @@ describe('Progress notifications', function () {
         });
 
         before(function () {
-            result = hive.do('test.progress.3', 123, Math.random()).post('result').progress(progressSpy)
+            result = hive.do('test.progress.3', 123, Math.random()).call('result').progressed(progressSpy)
 
             return result;
         })

@@ -2,8 +2,9 @@
 
 /* global describe, it, before, hive */
 
-var Q = require('q');
+var Promise = require('bluebird');
 var _ = require('lodash')
+var utils = require('../lib/utils')
 
 describe('Job dependencies', function () {
 
@@ -96,7 +97,7 @@ describe('Job dependencies', function () {
                 name: 'test.dependencies',
                 dependencies: [job.jid]
             }, 7, random)
-                .post('result').then(function () {
+                .call('result').then(function () {
                     return start.should.be.closeTo(Date.now(), 50)
                 })
         })
@@ -109,7 +110,7 @@ describe('Job dependencies', function () {
 
         before(function () {
 
-            return Q.all([
+            return Promise.all([
                 // job 1
                 hive.do({
                     name: 'test.dependencies.1',
@@ -141,7 +142,7 @@ describe('Job dependencies', function () {
                 name: 'test.dependencies',
                 dependencies: [job.jid, job2.jid]
             }, 7, random)
-                .post('result').then(function () {
+                .call('result').then(function () {
                     return (Date.now()-start).should.be.gte(2900)
                 })
         })
@@ -154,7 +155,7 @@ describe('Job dependencies', function () {
                 name: 'test.dependencies',
                 dependencies: [job.jid, job2.jid]
             }, 7, random)
-                .post('result').then(function () {
+                .call('result').then(function () {
                     return start.should.be.closeTo(Date.now(), 50)
                 })
         })
@@ -196,7 +197,7 @@ describe('Job dependencies', function () {
                 name: 'test.dependencies',
                 dependencies: [job.jid, job2.jid]
             }, 7, random)
-                .post('result').then(function () {
+                .call('result').then(function () {
                     return (Date.now()-start).should.be.gte(3000)
                 })
         })
@@ -209,7 +210,7 @@ describe('Job dependencies', function () {
 
         before(function () {
 
-            return Q.all([
+            return Promise.all([
                 // job 1
                 hive.do({
                     name: 'test.dependencies.1'
@@ -239,7 +240,7 @@ describe('Job dependencies', function () {
                 name: 'test.dependencies',
                 dependencies: [job.jid, job2.jid]
             }, 7, random)
-                .post('result').then(function () {
+                .call('result').then(function () {
                     return (Date.now()-start).should.be.gte(2000)
                 })
         })
@@ -252,7 +253,7 @@ describe('Job dependencies', function () {
                 name: 'test.dependencies',
                 dependencies: [job.jid, job2.jid]
             }, 7, random)
-                .post('result').then(function () {
+                .call('result').then(function () {
                     return start.should.be.closeTo(Date.now(), 50)
                 })
         })
@@ -283,7 +284,7 @@ describe('Job dependencies', function () {
                 name: 'test.dependencies',
                 dependencies: [job.jid]
             }, 7, random)
-                .post('result').then(function () {
+                .call('result').then(function () {
                     return start.should.be.closeTo(Date.now(), 50)
                 })
         })
@@ -352,7 +353,7 @@ describe('Job dependencies', function () {
                     _job.cancel();
 
                     return job.result().then(function () {
-                        return Q.all([
+                        return Promise.all([
                             _job.result().should.be.rejectedWith(Error, 'Canceled'),
 
                             _.flatten(_job.history, 'event').should.be.an('array')
@@ -387,7 +388,7 @@ describe('Job dependencies', function () {
 
             var start;
 
-            return Q.delay(2500).then(function () {
+            return utils.PromiseDelay(2500).then(function () {
 
                 start = Date.now();
 
@@ -440,9 +441,9 @@ describe('Job dependencies', function () {
                 name: 'test.dependencies.2',
                 tags: tags
             }, 8, random)
-                .post('result')
+                .call('result')
                 .then(function (result) {
-                    return Q.all([
+                    return Promise.all([
                         (Date.now() - start).should.be.gte(2000),
                         result.should.be.equal(8)
                     ])

@@ -31,12 +31,12 @@ hive.bee('Image.create', {
 
         job.setTags(['customerId=' + workload.customerId, 'tag1'])
 
-        return job.sub('Image.download', workload.largeUrl).post('result')
+        return job.sub('Image.download', workload.largeUrl).call('result')
             .then(function(download) {
-                return job.sub('Image.process', workload.smallWidth, workload.smallHeight, download.path).post('result')
+                return job.sub('Image.process', workload.smallWidth, workload.smallHeight, download.path).call('result')
             })
             .then(function(process) {
-                return job.sub('Image.upload', process.slices).post('result')
+                return job.sub('Image.upload', process.slices).call('result')
                     .then(function(upload) {
                         return _.extend(workload, process, upload);
                     })
@@ -70,9 +70,9 @@ hive.bee('Image.process', {
         var processProgress = [];
 
         return Q.all(_.map([1, 2, 3, 4, 5], function(i) {
-            return job.sub('Image.resize', path, width + i * 200, height + i * 200).post('result')
+            return job.sub('Image.resize', path, width + i * 200, height + i * 200).call('result')
                 .then(function(resize) {
-                    return job.sub('Image.slice', resize.slicePath).post('result')
+                    return job.sub('Image.slice', resize.slicePath).call('result')
                 })
                 .progress(function(progress) {
                     processProgress[i - 1] = progress;
@@ -125,7 +125,7 @@ hive.bee('Image.slice', {
 
         console.log('SLICE: received job:', job.jid, 'path=', path);
 
-        return Q.delay(1000 * Math.random()).thenResolve({
+        return Q.delay(1000 * Math.random()).return({
             slices: Path.dirname(path)
         })
 

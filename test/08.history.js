@@ -2,7 +2,6 @@
 
 /* global describe, it, before, hive */
 
-// var Q = require('q');
 var _ = require('lodash')
 
 describe('Job history', function () {
@@ -161,7 +160,7 @@ describe('Job history', function () {
             }, 'X', Math.random()).then(function (_job) {
                     job = _job;
                     job.cancel();
-                    return job.result().fail(function () {
+                    return job.result().catch(function () {
 
                     })
                 })

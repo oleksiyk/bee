@@ -2,7 +2,9 @@
 
 /* global describe, it, before, hivelib, sinon, hive */
 
-var Q = require('q')
+var Promise = require('bluebird')
+
+var utils = require('../lib/utils')
 
 describe('Failed jobs', function () {
     var failedSpyThrow, failedSpyHashThrowHash, failedSpyHashThrowWorker;
@@ -27,9 +29,9 @@ describe('Failed jobs', function () {
         // this worker rejects the job without throwing an exception
         hive.bee('test.failed.rejectedPromise', {
             worker: function(job) {
-                var deferred = Q.defer();
+                var deferred = Promise.defer();
 
-                Q.delay(2000).then(function() {
+                utils.PromiseDelay(2000).then(function() {
                     deferred.reject({
                         message: 'Rejected promise',
                         retry: false
@@ -78,7 +80,7 @@ describe('Failed jobs', function () {
 
                 job.options.retries = 0;
 
-                var deferred = Q.defer();
+                var deferred = Promise.defer();
 
                 return deferred.promise;
             }
@@ -91,7 +93,7 @@ describe('Failed jobs', function () {
 
                 job.options.retries = 0;
 
-                var deferred = Q.defer();
+                var deferred = Promise.defer();
 
                 return deferred.promise;
             },
@@ -104,7 +106,7 @@ describe('Failed jobs', function () {
         hive.bee('test.failed.sqrt.slow', {
             worker: function(job, a) {
 
-                return Q.delay(3000).then(function() {
+                return utils.PromiseDelay(3000).then(function() {
                     if (a < 0) {
                         throw {
                             message: 'Argument must be positive',
@@ -122,9 +124,9 @@ describe('Failed jobs', function () {
             hash: function(job, a) {
                 job.options.retries = 0;
 
-                if (a === 0) throw 'Exception as string'
+                if (a === 0) {throw 'Exception as string'}
 
-                if (a === -1) a = undefined;
+                if (a === -1) {a = undefined;}
 
                 return a;
             },
@@ -147,7 +149,7 @@ describe('Failed jobs', function () {
         })
 
         it('should give the same failed reason when job is retrieved with hive.job()', function () {
-            return hive.job(jid).post('result').should.be.rejectedWith(Error, 'Argument must be positive');
+            return hive.job(jid).call('result').should.be.rejectedWith(Error, 'Argument must be positive');
         })
 
         it('should work with proper argument (Math.sqrt(16) == 4)', function () {
@@ -171,7 +173,7 @@ describe('Failed jobs', function () {
         })
 
         it('should give the same failed reason when job is retrieved with hive.job()', function () {
-            return hive.job(jid).post('result').should.be.rejectedWith(Error, 'Rejected promise');
+            return hive.job(jid).call('result').should.be.rejectedWith(Error, 'Rejected promise');
         })
 
     })
@@ -202,7 +204,7 @@ describe('Failed jobs', function () {
         })
 
         it('worker should be called twice', function () {
-            return job.result().thenResolve(failedSpyThrow.should.be.calledTwice);
+            return job.result().return(failedSpyThrow.should.be.calledTwice);
         })
 
         it('job.retries should match calls count', function () {
@@ -232,7 +234,7 @@ describe('Failed jobs', function () {
             this.timeout(35 * 1000);
 
             return job.result()
-                .fail(function () {
+                .catch(function () {
                     (Date.now() - start).should.be.closeTo(30 * 1000, 1000)
                 })
         })
@@ -243,25 +245,25 @@ describe('Failed jobs', function () {
         })
 
         it('worker should not be called', function () {
-            return job.result().fail(function () {
+            return job.result().catch(function () {
                 return failedSpyHashThrowWorker.should.not.be.called;
             });
         })
 
         it('hash function should be called twice', function () {
-            return job.result().fail(function () {
+            return job.result().catch(function () {
                 return failedSpyHashThrowHash.should.be.calledTwice;
             });
         })
 
         it('hash function should throw ReferenceError', function () {
-            return job.result().fail(function () {
+            return job.result().catch(function () {
                 return failedSpyHashThrowHash.getCall(0).should.have.thrown('ReferenceError')
             });
         })
 
         it('job.retries should match specified in job options', function () {
-            return job.result().fail(function () {
+            return job.result().catch(function () {
                 failedSpyHashThrowHash.getCall(0).args[0].retries.should.equal(0);
                 failedSpyHashThrowHash.getCall(1).args[0].retries.should.equal(1);
             })
@@ -286,7 +288,7 @@ describe('Failed jobs', function () {
             this.timeout(5 * 1000);
 
             return job.result()
-                .fail(function () {
+                .catch(function () {
                     (Date.now() - start).should.be.closeTo(3 * 1000, 1000)
                 })
         })
@@ -315,7 +317,7 @@ describe('Failed jobs', function () {
             this.timeout(5 * 1000);
 
             return job.result()
-                .fail(function () {
+                .catch(function () {
                     (Date.now() - start).should.be.closeTo(3 * 1000, 1000)
                 })
         })
@@ -329,13 +331,12 @@ describe('Failed jobs', function () {
 
     describe('Duplicate sent for already failed job', function () {
         var job1, job2, random = Math.random();
-        ;
 
         before(function () {
             return hive.do('test.failed.sqrt', -124, random).then(function (job) {
                 job1 = job;
 
-                return job1.result().fail(function () {
+                return job1.result().catch(function () {
                     return hive.do('test.failed.sqrt', -124, random).then(function (job) {
                         job2 = job;
                     })
@@ -365,20 +366,19 @@ describe('Failed jobs', function () {
 
     describe('Duplicate sent for eventually failed job #slow', function () {
         var job1, job2, job1end, job2end, random = Math.random();
-        ;
 
         before(function () {
             return hive.do('test.failed.sqrt.slow', -124, random).then(function (job) {
                 job1 = job;
 
-                job1.result().fail(function () {
+                job1.result().catch(function () {
                     job1end = Date.now()
                 })
 
                 return hive.do('test.failed.sqrt.slow', -124, random).then(function (job) {
                     job2 = job;
 
-                    job2.result().fail(function () {
+                    job2.result().catch(function () {
                         job2end = Date.now()
                     })
                 })

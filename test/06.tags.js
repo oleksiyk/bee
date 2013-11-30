@@ -2,7 +2,9 @@
 
 /* global describe, it, before, hive, sinon */
 
-var Q = require('q');
+var Promise = require('bluebird');
+
+var utils = require('../lib/utils')
 
 describe('Job tags', function () {
 
@@ -76,7 +78,7 @@ describe('Job tags', function () {
 
         it('expired job is not searchable (job.ttl=1.5sec) #slow', function () {
             this.timeout(3000);
-            return Q.delay(2500).then(function () {
+            return utils.PromiseDelay(2500).then(function () {
                 return hive.search('tag123').should.eventually.be.a('array').that.is.empty;
             })
         })
@@ -96,14 +98,14 @@ describe('Job tags', function () {
         })
 
         it('job is tagged and searchable by each of the tags', function () {
-            return Q.all([
+            return Promise.all([
                 hive.search('tag123').should.eventually.be.a('array').that.include(job.jid),
                 hive.search('tag234').should.eventually.be.a('array').that.include(job.jid)
             ])
         })
 
         it('job is searchable by both tags at once', function () {
-            return Q.all([
+            return Promise.all([
                 hive.search(['tag123', 'tag234']).should.eventually.be.a('array').that.include(job.jid),
                 hive.search('tag123', 'tag234').should.eventually.be.a('array').that.include(job.jid)
             ])
@@ -123,8 +125,8 @@ describe('Job tags', function () {
 
         it('expired job is not searchable by any of the tags (job.ttl=1.5sec) #slow', function () {
             this.timeout(3000);
-            return Q.delay(2500).then(function () {
-                return Q.all([
+            return utils.PromiseDelay(2500).then(function () {
+                return Promise.all([
                     hive.search('tag123').should.eventually.be.a('array').that.is.empty,
                     hive.search('tag234').should.eventually.be.a('array').that.is.empty
                 ])
@@ -148,7 +150,7 @@ describe('Job tags', function () {
         })
 
         it('job is tagged and searchable by each of the tags', function () {
-            return Q.all([
+            return Promise.all([
                 hive.search('clientTag1').should.eventually.be.a('array').that.include(job.jid),
                 hive.search('clientTag2').should.eventually.be.a('array').that.include(job.jid)
             ])
@@ -176,8 +178,8 @@ describe('Job tags', function () {
 
         it('expired job is not searchable by any of the tags (job.ttl=1.5sec) #slow', function () {
             this.timeout(3000);
-            return Q.delay(2500).then(function () {
-                return Q.all([
+            return utils.PromiseDelay(2500).then(function () {
+                return Promise.all([
                     hive.search('clientTag1').should.eventually.be.a('array').that.is.empty,
                     hive.search('clientTag2').should.eventually.be.a('array').that.is.empty
                 ])
@@ -206,8 +208,8 @@ describe('Job tags', function () {
 
         it('expired job is not searchable by any of the tags (job.ttl=1.5sec)', function () {
             this.timeout(3000);
-            return Q.delay(2500).then(function () {
-                return Q.all([
+            return utils.PromiseDelay(2500).then(function () {
+                return Promise.all([
                     hive.search('X0').should.eventually.be.a('array').that.is.empty,
                     hive.search('X1').should.eventually.be.a('array').that.is.empty,
                     hive.search('X2').should.eventually.be.a('array').that.is.empty
@@ -230,7 +232,7 @@ describe('Job tags', function () {
         })
 
         it('job is tagged and searchable by each of the tags', function () {
-            return Q.all([
+            return Promise.all([
                 hive.search('tag1').should.eventually.be.a('array').that.include(job.jid),
                 hive.search('tag2').should.eventually.be.a('array').that.include(job.jid)
             ])

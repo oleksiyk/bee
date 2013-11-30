@@ -180,7 +180,7 @@ You can also control job retries with the properties of thrown exception (or pro
                     .progress(function (progress) {
                         return progress + 1;
                     })
-                    .thenResolve(a + a);
+                    .return(a + a);
 
             }
         })
