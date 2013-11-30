@@ -319,6 +319,8 @@ List of event names:
 Written when job is sent.
 * `queued`
 Written when job enters working queue.
+* `duplicate`
+Written when job us marked as duplicate to another existing job.
 * `delayed`
 Written when job is being delayed due to `delay` property (see [Job options](#optionslist)) or when job is waiting to be retried after exception failure. Contains additional `till` property which is a timestamp in ms.
 * `exception`
