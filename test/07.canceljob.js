@@ -5,6 +5,8 @@
 var Promise = require('bluebird');
 var _ = require('lodash')
 
+Promise.onPossiblyUnhandledRejection();
+
 var utils = require('../lib/utils')
 
 describe('Job cancel', function () {
@@ -83,6 +85,7 @@ describe('Job cancel', function () {
                 .then(function (_job) {
                     job = _job;
                     return utils.PromiseDelay(100).then(function () {
+                        job.result().catch(function() {})
                         return job.cancel()
                     })
                 })
@@ -116,6 +119,7 @@ describe('Job cancel', function () {
                 .then(function (_job) {
                     job = _job;
                     return utils.PromiseDelay(500).then(function () {
+                        job.result().catch(function() {})
                         return job.cancel()
                     })
                 })
@@ -154,6 +158,7 @@ describe('Job cancel', function () {
                 .then(function (_job) {
                     job = _job;
                     return utils.PromiseDelay(500).then(function () {
+                        job.result().catch(function() {})
                         return job.cancel()
                     })
                 })
@@ -200,6 +205,7 @@ describe('Job cancel', function () {
                             return job2.result()
                         })
                 ]).then(function () {
+                    job.result().catch(function() {})
                     return job.cancel().then(function () {
                         return hive.do('test.cancel.finished.successful', random)
                             .then(function (_job) {
@@ -248,25 +254,19 @@ describe('Job cancel', function () {
                     hive.do('test.cancel.finished.failed', random)
                         .then(function (_job) {
                             job = _job;
-                            return job.result().fail(function () {
-
-                            })
+                            return job.result().catch(function () {})
                         }),
                     hive.do('test.cancel.finished.failed', random)
                         .then(function (_job) {
                             job2 = _job;
-                            return job2.result().fail(function () {
-
-                            })
+                            return job2.result().catch(function () {})
                         })
                 ]).then(function () {
                     return job.cancel().then(function () {
                         return hive.do('test.cancel.finished.failed', random)
                             .then(function (_job) {
                                 job3 = _job;
-                                return job3.result().fail(function () {
-
-                                })
+                                return job3.result().catch(function () {})
                             })
                     })
                 })
@@ -314,6 +314,7 @@ describe('Job cancel', function () {
                 job = _job;
 
                 return utils.PromiseDelay(300).then(function () {
+                    job.result().catch(function() {})
                     return job.cancel()
                 })
             })
@@ -343,6 +344,7 @@ describe('Job cancel', function () {
                     job2 = _job;
 
                     return utils.PromiseDelay(300).then(function () {
+                        job.result().catch(function() {})
                         return job.cancel()
                     })
                 })

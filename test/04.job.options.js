@@ -141,7 +141,7 @@ describe('Job options', function () {
             it('and should be expired after ~3 sec', function () {
                 this.timeout(5000);
 
-                return utils.PromiseDelay(3000).then(function () {
+                return utils.PromiseDelay(3200).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Expired')
                 })
             })
@@ -184,7 +184,7 @@ describe('Job options', function () {
             it('and should be expired after ~3 sec', function () {
                 this.timeout(5000);
 
-                return utils.PromiseDelay(3000).then(function () {
+                return utils.PromiseDelay(3200).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Expired')
                 })
             })
