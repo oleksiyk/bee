@@ -4,7 +4,6 @@
 
 var Promise = require('bluebird');
 var _ = require('lodash')
-var utils = require('../lib/utils')
 
 describe('Job dependencies', function () {
 
@@ -388,7 +387,7 @@ describe('Job dependencies', function () {
 
             var start;
 
-            return utils.PromiseDelay(2500).then(function () {
+            return Promise.delay(2500).then(function () {
 
                 start = Date.now();
 

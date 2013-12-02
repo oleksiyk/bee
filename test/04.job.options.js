@@ -2,8 +2,7 @@
 
 /* global describe, it, before, sinon, hive */
 
-// var Promise = require('bluebird')
-var utils = require('../lib/utils')
+var Promise = require('bluebird')
 
 describe('Job options', function () {
     var ttlSpy, retryDelaySpy, progressiveDelaySpy;
@@ -141,7 +140,7 @@ describe('Job options', function () {
             it('and should be expired after ~3 sec', function () {
                 this.timeout(5000);
 
-                return utils.PromiseDelay(3200).then(function () {
+                return Promise.delay(3200).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Expired')
                 })
             })
@@ -158,7 +157,7 @@ describe('Job options', function () {
             it('job should be deleted completely after another ~3 sec', function () {
                 this.timeout(5000);
 
-                return utils.PromiseDelay(3000).then(function () {
+                return Promise.delay(3000).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Not found')
                 })
             })
@@ -184,7 +183,7 @@ describe('Job options', function () {
             it('and should be expired after ~3 sec', function () {
                 this.timeout(5000);
 
-                return utils.PromiseDelay(3200).then(function () {
+                return Promise.delay(3200).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Expired')
                 })
             })
@@ -192,7 +191,7 @@ describe('Job options', function () {
             it('job should be deleted completely after another ~3 sec', function () {
                 this.timeout(5000);
 
-                return utils.PromiseDelay(3000).then(function () {
+                return Promise.delay(3000).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Not found')
                 })
             })

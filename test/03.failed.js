@@ -1,10 +1,8 @@
 "use strict";
 
-/* global describe, it, before, hivelib, sinon, hive */
+/* global describe, it, before, sinon, hive */
 
 var Promise = require('bluebird')
-
-var utils = require('../lib/utils')
 
 describe('Failed jobs', function () {
     var failedSpyThrow, failedSpyHashThrowHash, failedSpyHashThrowWorker;
@@ -31,7 +29,7 @@ describe('Failed jobs', function () {
             worker: function(job) {
                 var deferred = Promise.defer();
 
-                utils.PromiseDelay(2000).then(function() {
+                Promise.delay(2000).then(function() {
                     deferred.reject({
                         message: 'Rejected promise',
                         retry: false
@@ -106,7 +104,7 @@ describe('Failed jobs', function () {
         hive.bee('test.failed.sqrt.slow', {
             worker: function(job, a) {
 
-                return utils.PromiseDelay(3000).then(function() {
+                return Promise.delay(3000).then(function() {
                     if (a < 0) {
                         throw {
                             message: 'Argument must be positive',

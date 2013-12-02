@@ -7,8 +7,6 @@ var _ = require('lodash')
 
 Promise.onPossiblyUnhandledRejection();
 
-var utils = require('../lib/utils')
-
 describe('Job cancel', function () {
 
     var spyDelayed, spyRunningSuccessful, spyRunningFailed, spyWorkflowParent, spyWorkflowChild;
@@ -24,7 +22,7 @@ describe('Job cancel', function () {
         })
 
         spyRunningSuccessful = sinon.spy(function(job, a) {
-            return utils.PromiseDelay(2000).return(a)
+            return Promise.delay(2000).return(a)
         })
 
         hive.bee('test.cancel.running.successful', {
@@ -32,7 +30,7 @@ describe('Job cancel', function () {
         })
 
         spyRunningFailed = sinon.spy(function(job, a) {
-            return utils.PromiseDelay(2000).throw(new Error('Failed!!'))
+            return Promise.delay(2000).throw(new Error('Failed!!'))
         })
 
         hive.bee('test.cancel.running.failed', {
@@ -62,7 +60,7 @@ describe('Job cancel', function () {
         })
 
         spyWorkflowChild = sinon.spy(function(job, a) {
-            return utils.PromiseDelay(2000).return(a)
+            return Promise.delay(2000).return(a)
         })
 
         hive.bee('test.cancel.workflow.single', {
@@ -84,7 +82,7 @@ describe('Job cancel', function () {
             }, Math.random())
                 .then(function (_job) {
                     job = _job;
-                    return utils.PromiseDelay(100).then(function () {
+                    return Promise.delay(100).then(function () {
                         job.result().catch(function() {})
                         return job.cancel()
                     })
@@ -118,7 +116,7 @@ describe('Job cancel', function () {
             return hive.do('test.cancel.running.successful', 123456, Math.random())
                 .then(function (_job) {
                     job = _job;
-                    return utils.PromiseDelay(500).then(function () {
+                    return Promise.delay(500).then(function () {
                         job.result().catch(function() {})
                         return job.cancel()
                     })
@@ -157,7 +155,7 @@ describe('Job cancel', function () {
             return hive.do('test.cancel.running.failed', Math.random())
                 .then(function (_job) {
                     job = _job;
-                    return utils.PromiseDelay(500).then(function () {
+                    return Promise.delay(500).then(function () {
                         job.result().catch(function() {})
                         return job.cancel()
                     })
@@ -313,7 +311,7 @@ describe('Job cancel', function () {
             return hive.do('test.cancel.workflow.single', Math.random()).then(function (_job) {
                 job = _job;
 
-                return utils.PromiseDelay(300).then(function () {
+                return Promise.delay(300).then(function () {
                     job.result().catch(function() {})
                     return job.cancel()
                 })
@@ -343,7 +341,7 @@ describe('Job cancel', function () {
                 return hive.do('test.cancel.workflow.single', 1234, random, Math.random()).then(function (_job) {
                     job2 = _job;
 
-                    return utils.PromiseDelay(300).then(function () {
+                    return Promise.delay(300).then(function () {
                         job.result().catch(function() {})
                         return job.cancel()
                     })
