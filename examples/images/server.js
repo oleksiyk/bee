@@ -74,7 +74,7 @@ hive.bee('Image.process', {
                 .then(function(resize) {
                     return job.sub('Image.slice', resize.slicePath).call('result')
                 })
-                .progress(function(progress) {
+                .progressed(function(progress) {
                     processProgress[i - 1] = progress;
                     job.progress(_.reduce(processProgress, function(a, b) {
                         return a + b

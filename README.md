@@ -33,9 +33,6 @@ hive.bee('Images.Resize', function(job, imagePath, width, height){
 })
 ```
 
-
-Internally bee works with [Q](https://github.com/kriskowal/q/) promises which makes it easy to construct complex job workflows and handle possible errors.
-
 ### Status
 Beta
 
@@ -176,8 +173,8 @@ You can also control job retries with the properties of thrown exception (or pro
         hive.bee('test.progress.3', {
             worker: function (job, a) {
 
-                return hive.do('test.progress.2', a, Math.random()).post('result')
-                    .progress(function (progress) {
+                return hive.do('test.progress.2', a, Math.random()).call('result')
+                    .progressed(function (progress) {
                         return progress + 1;
                     })
                     .return(a + a);
@@ -188,8 +185,8 @@ You can also control job retries with the properties of thrown exception (or pro
 4. Receive progress notifications:
 
 	```javascript
-	hive.do('test.progress.2', a).post('result')
-        	.progress(function (progress) {
+	hive.do('test.progress.2', a).call('result')
+        	.progressed(function (progress) {
         		process.stdout.write('\rProcessing progress=' + Number(progress).toFixed(2) + '%')
         	})
 
@@ -248,7 +245,7 @@ Stacking up jobs is easy:
 
 	```javascript
 	hive.do('Image.Resize.Remote', 'http://www.example.org/image.jpg', 300, 300)
-	.post('result')
+	.call('result')
 	.then(function(result){
 		// use resized local image
 	})
@@ -274,7 +271,7 @@ Stacking up jobs is easy:
 	// this one combines all together
 	hive.bee('Image.Resize.Remote', {
 		worker: function(url, width, height){
-			return hive.do('Image.Download', url).post('result')
+			return hive.do('Image.Download', url).call('result')
 			.then(function(imagePath){
 				return hive.do('Image.Resize', imagePath, width, height);
 			})
@@ -293,7 +290,7 @@ When submitting job it is possible to provide a list of JIDs on which this new j
 hive.do({
 	name: 'test.dependencies',
 	dependencies: [otherJob1.jid, otherJob2.jid] // wait for these two jobs before starting
-}, 'workload').post('result').then...
+}, 'workload').call('result').then...
 ```
 
 See also [`hive.doTagsDependant`](#hive.doTagsDependant)
@@ -356,7 +353,7 @@ When using [workflows](#workflows) it is sometimes necessary to cancel the whole
 // this one combines all together
 hive.bee('Image.Resize.Remote', {
 	worker: function(url, width, height){
-		return job.sub('Image.Download', url).post('result')
+		return job.sub('Image.Download', url).call('result')
 		.then(function(imagePath){
 			return job.sub('Image.Resize', imagePath, width, height);
 		})
