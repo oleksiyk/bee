@@ -2,8 +2,10 @@
 
 /* global describe, it, before, hive, sinon */
 
-var Q = require('q');
+var Promise = require('bluebird');
 var _ = require('lodash')
+
+Promise.onPossiblyUnhandledRejection();
 
 describe('Job cancel', function () {
 
@@ -20,7 +22,7 @@ describe('Job cancel', function () {
         })
 
         spyRunningSuccessful = sinon.spy(function(job, a) {
-            return Q.delay(2000).thenResolve(a)
+            return Promise.delay(2000).return(a)
         })
 
         hive.bee('test.cancel.running.successful', {
@@ -28,7 +30,7 @@ describe('Job cancel', function () {
         })
 
         spyRunningFailed = sinon.spy(function(job, a) {
-            return Q.delay(2000).thenReject(new Error('Failed!!'))
+            return Promise.delay(2000).throw(new Error('Failed!!'))
         })
 
         hive.bee('test.cancel.running.failed', {
@@ -54,11 +56,11 @@ describe('Job cancel', function () {
             job.options.retryDelay = 3000;
             return job.sub({
                 name: 'test.cancel.workflow.child'
-            }, a, random).post('result')
+            }, a, random).call('result')
         })
 
         spyWorkflowChild = sinon.spy(function(job, a) {
-            return Q.delay(2000).thenResolve(a)
+            return Promise.delay(2000).return(a)
         })
 
         hive.bee('test.cancel.workflow.single', {
@@ -80,7 +82,8 @@ describe('Job cancel', function () {
             }, Math.random())
                 .then(function (_job) {
                     job = _job;
-                    return Q.delay(100).then(function () {
+                    return Promise.delay(100).then(function () {
+                        job.result().catch(function() {})
                         return job.cancel()
                     })
                 })
@@ -99,7 +102,7 @@ describe('Job cancel', function () {
         })
 
         it('job hash should have an expire TTL set in Redis', function () {
-            return Q.nbind(hive.redis.cmd.pttl, hive.redis.cmd)('bee:h:jobs:' + job.jid)
+            return hive.redis.PTTL('bee:h:jobs:' + job.jid)
                 .then(function (ttl) {
                     return ttl.should.be.within(1700000, 1800000)
                 })
@@ -113,7 +116,8 @@ describe('Job cancel', function () {
             return hive.do('test.cancel.running.successful', 123456, Math.random())
                 .then(function (_job) {
                     job = _job;
-                    return Q.delay(500).then(function () {
+                    return Promise.delay(500).then(function () {
+                        job.result().catch(function() {})
                         return job.cancel()
                     })
                 })
@@ -137,7 +141,7 @@ describe('Job cancel', function () {
         })
 
         it('job hash should have an expire TTL set in Redis', function () {
-            return Q.nbind(hive.redis.cmd.pttl, hive.redis.cmd)('bee:h:jobs:' + job.jid)
+            return hive.redis.PTTL('bee:h:jobs:' + job.jid)
                 .then(function (ttl) {
                     return ttl.should.be.within(1700000, 1800000)
                 })
@@ -151,7 +155,8 @@ describe('Job cancel', function () {
             return hive.do('test.cancel.running.failed', Math.random())
                 .then(function (_job) {
                     job = _job;
-                    return Q.delay(500).then(function () {
+                    return Promise.delay(500).then(function () {
+                        job.result().catch(function() {})
                         return job.cancel()
                     })
                 })
@@ -175,7 +180,7 @@ describe('Job cancel', function () {
         })
 
         it('job hash should have an expire TTL set in Redis', function () {
-            return Q.nbind(hive.redis.cmd.pttl, hive.redis.cmd)('bee:h:jobs:' + job.jid)
+            return hive.redis.PTTL('bee:h:jobs:' + job.jid)
                 .then(function (ttl) {
                     return ttl.should.be.within(1700000, 1800000)
                 })
@@ -186,7 +191,7 @@ describe('Job cancel', function () {
         var job, job2, job3, random = Math.random();
 
         before(function () {
-            return Q.all([
+            return Promise.all([
                     hive.do('test.cancel.finished.successful', random)
                         .then(function (_job) {
                             job = _job;
@@ -198,6 +203,7 @@ describe('Job cancel', function () {
                             return job2.result()
                         })
                 ]).then(function () {
+                    job.result().catch(function() {})
                     return job.cancel().then(function () {
                         return hive.do('test.cancel.finished.successful', random)
                             .then(function (_job) {
@@ -210,7 +216,7 @@ describe('Job cancel', function () {
         })
 
         it('all jobs are finished', function () {
-            return Q.all([
+            return Promise.all([
                 job.result().should.be.fulfilled,
                 job2.result().should.be.fulfilled,
                 job3.result().should.be.fulfilled
@@ -242,29 +248,23 @@ describe('Job cancel', function () {
         var job, job2, job3, random = Math.random();
 
         before(function () {
-            return Q.all([
+            return Promise.all([
                     hive.do('test.cancel.finished.failed', random)
                         .then(function (_job) {
                             job = _job;
-                            return job.result().fail(function () {
-
-                            })
+                            return job.result().catch(function () {})
                         }),
                     hive.do('test.cancel.finished.failed', random)
                         .then(function (_job) {
                             job2 = _job;
-                            return job2.result().fail(function () {
-
-                            })
+                            return job2.result().catch(function () {})
                         })
                 ]).then(function () {
                     return job.cancel().then(function () {
                         return hive.do('test.cancel.finished.failed', random)
                             .then(function (_job) {
                                 job3 = _job;
-                                return job3.result().fail(function () {
-
-                                })
+                                return job3.result().catch(function () {})
                             })
                     })
                 })
@@ -272,7 +272,7 @@ describe('Job cancel', function () {
         })
 
         it('all jobs are finished and failed with "Failed123!"', function () {
-            return Q.all([
+            return Promise.all([
                 job.result().should.be.rejectedWith(Error, 'Failed123!'),
                 job2.result().should.be.rejectedWith(Error, 'Failed123!'),
                 job3.result().should.be.rejectedWith(Error, 'Failed123!')
@@ -300,7 +300,7 @@ describe('Job cancel', function () {
         })
 
         it('hive.job(job3.jid).result() is rejected with "Failed123!"', function () {
-            return hive.job(job3.jid).post('result').should.be.rejectedWith(Error, "Failed123!");
+            return hive.job(job3.jid).call('result').should.be.rejectedWith(Error, "Failed123!");
         })
     })
 
@@ -311,7 +311,8 @@ describe('Job cancel', function () {
             return hive.do('test.cancel.workflow.single', Math.random()).then(function (_job) {
                 job = _job;
 
-                return Q.delay(300).then(function () {
+                return Promise.delay(300).then(function () {
+                    job.result().catch(function() {})
                     return job.cancel()
                 })
             })
@@ -340,7 +341,8 @@ describe('Job cancel', function () {
                 return hive.do('test.cancel.workflow.single', 1234, random, Math.random()).then(function (_job) {
                     job2 = _job;
 
-                    return Q.delay(300).then(function () {
+                    return Promise.delay(300).then(function () {
+                        job.result().catch(function() {})
                         return job.cancel()
                     })
                 })

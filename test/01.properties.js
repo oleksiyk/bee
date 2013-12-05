@@ -3,7 +3,7 @@
 var os = require("os");
 var crypto = require('crypto')
 
-var Q = require('q')
+var Promise = require('bluebird')
 
 /* global describe, it, before, sinon, hive, hivelib */
 
@@ -92,7 +92,7 @@ describe('Objects, methods and properties', function () {
             it('returns a promise', function () {
                 jobPromise = hive.do(queueName);
 
-                Q.isPromise(jobPromise).should.be.ok;
+                Promise.is(jobPromise).should.be.ok;
 
                 return jobPromise.should.be.fulfilled;
             })
@@ -106,7 +106,7 @@ describe('Objects, methods and properties', function () {
             it('returns a promise', function () {
                 var promise = hive.search('some tag');
 
-                Q.isPromise(promise).should.be.ok;
+                Promise.is(promise).should.be.ok;
 
                 return promise.should.be.fulfilled;
             })
@@ -121,7 +121,7 @@ describe('Objects, methods and properties', function () {
                 var job, promise, queue = queueName + Math.random();
 
                 before(function () {
-                    return Q.all([
+                    return Promise.all([
                         hive.do({
                             name: queue,
                             delay: 500
@@ -132,7 +132,7 @@ describe('Objects, methods and properties', function () {
 
                 it('a promise', function () {
                     promise = hive.queueSize(queue);
-                    return Q.isPromise(promise).should.be.ok;
+                    return Promise.is(promise).should.be.ok;
                 })
 
                 it('correct value', function () {
@@ -159,7 +159,7 @@ describe('Objects, methods and properties', function () {
                 })
 
                 it('promise', function () {
-                    Q.isPromise(promise).should.be.ok;
+                    Promise.is(promise).should.be.ok;
                 })
 
                 it('which should resolve for valid JID', function () {
@@ -300,7 +300,7 @@ describe('Objects, methods and properties', function () {
         })
 
         it('#sub() returns a promise', function () {
-            return Q.isPromise(workerJob.sub(queueName, Math.random()))
+            return Promise.is(workerJob.sub(queueName, Math.random()))
         })
 
         it('has method #setTags()', function () {

@@ -23,7 +23,7 @@ var sendWorkloadJobs = function(){
     for(var i = 0; i<step; i++){
 
         setTimeout(function(){
-            hive.do('highload', workload).post('result')
+            hive.do('highload', workload).call('result')
                 .then(function () {
                     rcvd++;
 

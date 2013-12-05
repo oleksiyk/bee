@@ -45,10 +45,10 @@ hive.do({
                 console.log(job.history);
                 //process.exit(0);
             })
-            .progress(function(progress) {
+            .progressed(function(progress) {
                 process.stdout.write('\rProcessing progress=' + Number(progress).toFixed(2) + '%')
             })
-            .fail(function(err) {
+            .catch(function(err) {
                 console.log('jid:', job.jid, ' FAILED:', err)
             })
     })

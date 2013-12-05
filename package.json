@@ -15,7 +15,7 @@
         "hiredis": "~=0.1.15",
         "redis": "~=0.8.5",
         "node-uuid": "~=1.4.1",
-        "q": "~=0.9.7"
+        "bluebird": "~0.10.x"
     },
     "devDependencies":{
         "chai": "~=1.8.0",

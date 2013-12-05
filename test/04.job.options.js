@@ -2,7 +2,7 @@
 
 /* global describe, it, before, sinon, hive */
 
-var Q = require('q')
+var Promise = require('bluebird')
 
 describe('Job options', function () {
     var ttlSpy, retryDelaySpy, progressiveDelaySpy;
@@ -126,7 +126,7 @@ describe('Job options', function () {
             })
 
             it('1st duplicate job sent immediately - worker isn\'t called', function () {
-                return hive.do('test.job.options.ttl', 3, 4, 2000, random).post('result')
+                return hive.do('test.job.options.ttl', 3, 4, 2000, random).call('result')
                     .then(function (result) {
                         ttlSpy.should.be.calledOnce;
                         result.should.equal(7);
@@ -140,14 +140,14 @@ describe('Job options', function () {
             it('and should be expired after ~3 sec', function () {
                 this.timeout(5000);
 
-                return Q.delay(3000).then(function () {
+                return Promise.delay(3200).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Expired')
                 })
             })
 
             it('2nd duplicate job sent after 2.5 sec - worker must be called', function () {
 
-                return hive.do('test.job.options.ttl', 3, 4, 2000, random).post('result')
+                return hive.do('test.job.options.ttl', 3, 4, 2000, random).call('result')
                     .then(function (result) {
                         ttlSpy.should.be.calledTwice;
                         result.should.equal(7);
@@ -157,7 +157,7 @@ describe('Job options', function () {
             it('job should be deleted completely after another ~3 sec', function () {
                 this.timeout(5000);
 
-                return Q.delay(3000).then(function () {
+                return Promise.delay(3000).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Not found')
                 })
             })
@@ -183,7 +183,7 @@ describe('Job options', function () {
             it('and should be expired after ~3 sec', function () {
                 this.timeout(5000);
 
-                return Q.delay(3000).then(function () {
+                return Promise.delay(3200).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Expired')
                 })
             })
@@ -191,7 +191,7 @@ describe('Job options', function () {
             it('job should be deleted completely after another ~3 sec', function () {
                 this.timeout(5000);
 
-                return Q.delay(3000).then(function () {
+                return Promise.delay(3000).then(function () {
                     return hive.job(originalJob.jid).should.be.rejectedWith(Error, 'Not found')
                 })
             })
@@ -216,7 +216,7 @@ describe('Job options', function () {
             this.timeout(10000);
 
             return job.result()
-                .fail(function () {
+                .catch(function () {
                     (Date.now() - start).should.be.closeTo(6000, 1000)
                 })
         })
@@ -227,7 +227,7 @@ describe('Job options', function () {
         })
 
         it('job.retries should match specified in job options', function () {
-            return job.result().fail(function () {
+            return job.result().catch(function () {
                 retryDelaySpy.getCall(0).args[0].retries.should.equal(0);
                 retryDelaySpy.getCall(1).args[0].retries.should.equal(1);
                 retryDelaySpy.getCall(2).args[0].retries.should.equal(2);
@@ -254,7 +254,7 @@ describe('Job options', function () {
             this.timeout(15000);
 
             return job.result()
-                .fail(function () {
+                .catch(function () {
                     (Date.now() - start).should.be.closeTo(9000, 1000)
                 })
         })
@@ -265,7 +265,7 @@ describe('Job options', function () {
         })
 
         it('job.retries should match specified in job options', function () {
-            return job.result().fail(function () {
+            return job.result().catch(function () {
                 progressiveDelaySpy.getCall(0).args[0].retries.should.equal(0);
                 progressiveDelaySpy.getCall(1).args[0].retries.should.equal(1);
                 progressiveDelaySpy.getCall(2).args[0].retries.should.equal(2);
