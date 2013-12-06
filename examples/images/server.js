@@ -3,7 +3,7 @@
 var _ = require('lodash');
 var Path = require('path');
 var crypto = require('crypto');
-var Q = require('q');
+var Promise = require('bluebird');
 
 var hive = require('../../lib').createHive({
     redis: {
@@ -69,7 +69,7 @@ hive.bee('Image.process', {
 
         var processProgress = [];
 
-        return Q.all(_.map([1, 2, 3, 4, 5], function(i) {
+        return Promise.all(_.map([1, 2, 3, 4, 5], function(i) {
             return job.sub('Image.resize', path, width + i * 200, height + i * 200).call('result')
                 .then(function(resize) {
                     return job.sub('Image.slice', resize.slicePath).call('result')
@@ -92,7 +92,7 @@ hive.bee('Image.process', {
 hive.bee('Image.resize', {
     worker: function(job, path, width, height) {
 
-        var deferred = Q.defer();
+        var deferred = Promise.defer();
 
         console.log('RESIZE: received job:', job.jid, 'path=', path, 'width=', width, 'height=', height);
 
@@ -125,7 +125,7 @@ hive.bee('Image.slice', {
 
         console.log('SLICE: received job:', job.jid, 'path=', path);
 
-        return Q.delay(1000 * Math.random()).return({
+        return Promise.delay(1000 * Math.random()).return({
             slices: Path.dirname(path)
         })
 
