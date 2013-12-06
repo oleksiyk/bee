@@ -74,13 +74,15 @@ hive.bee('Image.process', {
                 .then(function(resize) {
                     return job.sub('Image.slice', resize.slicePath).call('result')
                 })
-                .progressed(function(progress) {
-                    processProgress[i - 1] = progress;
-                    job.progress(_.reduce(processProgress, function(a, b) {
-                        return a + b
-                    }) / 5)
-                })
+
         }))
+            .progressed(function(progress) {
+                processProgress[progress.index] = progress.value;
+                job.progress(_.reduce(processProgress, function(a, b) {
+                    return a + b
+                }) / 5)
+                return void 0
+            })
             .then(function(result) {
                 return {
                     slices: result
@@ -102,7 +104,7 @@ hive.bee('Image.resize', {
 
         var f = function() {
 
-            deferred.notify(progress++);
+            deferred.progress(progress++);
 
             if (progress == 100) {
                 deferred.resolve({
@@ -125,7 +127,7 @@ hive.bee('Image.slice', {
 
         console.log('SLICE: received job:', job.jid, 'path=', path);
 
-        return Promise.delay(1000 * Math.random()).return({
+        return Promise.delay(Math.round(1000 * Math.random())).return({
             slices: Path.dirname(path)
         })
 

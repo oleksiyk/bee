@@ -40,13 +40,13 @@ hive.do({
             */
 
         job.result()
+            .progressed(function(progress) {
+                process.stdout.write('\rProcessing progress=' + Number(progress).toFixed(2) + '%')
+            })
             .then(function(result) {
                 console.log('jid:', job.jid, ', result:', result);
                 console.log(job.history);
                 //process.exit(0);
-            })
-            .progressed(function(progress) {
-                process.stdout.write('\rProcessing progress=' + Number(progress).toFixed(2) + '%')
             })
             .catch(function(err) {
                 console.log('jid:', job.jid, ' FAILED:', err)
