@@ -5,7 +5,7 @@
 var Promise = require('bluebird');
 var _ = require('lodash')
 
-describe('Job dependencies', function () {
+describe.only('Job dependencies', function () {
 
     before(function () {
 
@@ -199,6 +199,11 @@ describe('Job dependencies', function () {
                 .call('result').then(function () {
                     return (Date.now()-start).should.be.gte(3000)
                 })
+        })
+
+        it('job history should contain delayed', function () {
+            _.flatten(job2.history, 'event').should.be.an('array')
+                .and.include('delayed')
         })
 
     })
