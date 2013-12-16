@@ -5,7 +5,7 @@
 var Promise = require('bluebird');
 var _ = require('lodash')
 
-describe.only('Job dependencies', function () {
+describe('Job dependencies', function () {
 
     before(function () {
 
