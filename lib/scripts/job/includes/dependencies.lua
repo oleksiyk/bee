@@ -60,7 +60,7 @@ notifyDependants = function(jid)
                     -- add job to delayed queue
                     redis.call('zadd', 'bee:ss:delayed:' .. dependant_queue, NOW + dependant_options.delay, dependant_jid)
 
-                    addToHistory('bee:h:jobs:' .. dependant_jid, 'delayed', {
+                    addToHistory(dependant_jid, 'delayed', {
                         till = NOW + dependant_options.delay
                     })
 
