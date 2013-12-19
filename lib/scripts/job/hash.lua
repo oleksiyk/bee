@@ -60,6 +60,9 @@ if duplicateJid then
         job = getJob(args.jid)
     }))
 
+    -- notify all dependant jobs
+    notifyDependants(args.jid)
+
     -- Send out a log message
     hivelog({
         jid   = args.jid,

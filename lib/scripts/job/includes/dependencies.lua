@@ -11,6 +11,7 @@ addDependantJob = function(jid, dependant_jid)
             or parent_status == 'completed'
             or parent_status == 'failed'
             or parent_status == 'canceled'
+            or parent_status == 'duplicate'
             or parent_status == 'expired' then
 
         -- redis.log(redis.LOG_NOTICE, 'skiping this job because its status is:', parent_status)
