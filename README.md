@@ -105,7 +105,7 @@ hive.bee('Image.Resize', {
 		return crypto.createHash('sha1').update(imagePath).digest("hex");
 	},
 	worker: function(job, imagePath, width, height){
-		var deferred = Q.defer();
+		var deferred = Promise.defer();
 		// resize and then deferred.resolve(..)
 		return deferred.promise;
 	},
@@ -155,14 +155,14 @@ You can also control job retries with the properties of thrown exception (or pro
 		}
 	})
 	```
-2. Sending job progress using Q deferred:
+2. Sending job progress using deferred:
 
 	```javascript
 	hive.bee('Image.Resize', {
 		worker: function(job, imagePath, width, height){
-			var deferred = Q.defer;
+			var deferred = Promise.defer();
 			...
-			deferred.notify(0); deferred.notify(50); ...; deferred.resolve(...);
+			deferred.progress(0); deferred.progress(50); ...; deferred.resolve(...);
 			...
 			return deferred.promise;
 		}
