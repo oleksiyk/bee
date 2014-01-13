@@ -27,6 +27,9 @@
         "url": "https://github.com/oleksiyk/bee/issues"
     },
     "readmeFilename": "README.md",
+    "scripts": {
+        "test": "make test"
+    },
     "repository": {
         "type": "git",
         "url": "git://github.com/oleksiyk/bee.git"
