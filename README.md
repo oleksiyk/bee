@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/oleksiyk/bee.png)](https://travis-ci.org/oleksiyk/bee)
+
 # Bee
 Bee is a job queue for [Node](http://nodejs.org) built on top of  [Redis](http://redis.io) and its powerful Lua scripting possibilities.
 
